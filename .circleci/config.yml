@@ -17,13 +17,21 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install OpenShift Local
+          name: Login OpenShift
           command: |
-            wget https://developers.redhat.com/content-gateway/rest/mirror/pub/openshift-v4/clients/crc/latest/crc-linux-amd64.tar.xz
-            tar -xvf crc-linux-amd64.tar.xz
-            cd crc-linux-2.26.0-amd64
-            ./crc setup
-            ./crc start -m 14000
+            wget https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/openshift-client-linux.tar.gz
+            tar -xvf openshift-client-linux.tar.gz
+            ./oc login --token=sha256~ArtkDi9YFGfwklY5NLpBOrZSYhM6uUIf_3ooOh14seQ --server=https://api.cluster-pg7rd.pg7rd.sandbox2069.opentlc.com:6443
+      - terraform/install:
+          arch: amd64
+          os: linux
+          terraform_version: 0.14.2
+      - terraform/init:
+          path: servicemesh/
+      - terraform/validate:
+          path: servicemesh/
+      - terraform/plan:
+          path: servicemesh/
 
 workflows:
   terratest:
