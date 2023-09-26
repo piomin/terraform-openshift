@@ -1,0 +1,38 @@
+auth:
+  username: person-db
+  database: person-db
+  existingSecret: person-db
+
+fullnameOverride: person-db
+
+#primary:
+#  podSecurityContext:
+#    fsGroup: null
+#    seccompProfile:
+#      type: RuntimeDefault
+#  containerSecurityContext:
+#    runAsUser: null
+#    allowPrivilegeEscalation: false
+#    runAsNonRoot: true
+#    seccompProfile:
+#      type: RuntimeDefault
+#    capabilities:
+#      drop: ['ALL']
+#shmVolume:
+#  enabled: false
+#volumePermissions:
+#  enabled: false
+
+primary:
+  podSecurityContext:
+    fsGroup: null
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    enabled: false
+  containerSecurityContext:
+    enabled: false
+volumePermissions:
+  enabled: false
+shmVolume:
+  enabled: false

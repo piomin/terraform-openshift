@@ -1,0 +1,34 @@
+auth:
+  username: insurance-db
+  database: insurance-db
+  existingSecret: insurance-db
+
+fullnameOverride: insurance-db
+
+#primary:
+#  podSecurityContext:
+#    fsGroup: null
+#    seccompProfile:
+#      type: RuntimeDefault
+#  containerSecurityContext:
+#    runAsUser: null
+#    allowPrivilegeEscalation: false
+#    runAsNonRoot: true
+#    seccompProfile:
+#      type: RuntimeDefault
+#shmVolume:
+#  enabled: false
+
+primary:
+  podSecurityContext:
+    fsGroup: null
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    enabled: false
+  containerSecurityContext:
+    enabled: false
+volumePermissions:
+  enabled: false
+shmVolume:
+  enabled: false
