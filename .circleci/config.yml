@@ -30,7 +30,6 @@ jobs:
           path: servicemesh/
       - terraform/validate:
           path: servicemesh/
-          var: domain=${CLUSTER_API_URL},cluster-context=${CLUSTER_CONTEXT}
       - terraform/plan:
           path: servicemesh/
           var: domain=${CLUSTER_API_URL},cluster-context=${CLUSTER_CONTEXT}
