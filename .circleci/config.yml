@@ -1,0 +1,31 @@
+version: 2.1
+
+executors:
+  machine_executor_amd64:
+    machine:
+      image: ubuntu-2204:2022.04.2
+    environment:
+      architecture: "amd64"
+      platform: "linux/amd64"
+
+orbs:
+  terraform: circleci/terraform@3.2.1
+
+jobs:
+  deploy-ocp:
+    executor: machine_executor_amd64
+    steps:
+      - checkout
+      - run:
+          name: Install OpenShift Local
+          command: |
+            wget https://developers.redhat.com/content-gateway/rest/mirror/pub/openshift-v4/clients/crc/latest/crc-linux-amd64.tar.xz
+            tar -xvf crc-linux-amd64.tar.xz
+            cd crc-linux-2.26.0-amd64
+            ./crc setup
+            ./crc start -m 14000
+
+workflows:
+  terratest:
+    jobs:
+      - deploy-ocp
