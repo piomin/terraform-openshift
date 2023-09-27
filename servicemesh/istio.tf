@@ -4,14 +4,14 @@ resource "kubernetes_namespace" "istio" {
   }
 }
 
-resource "time_sleep" "wait_60_seconds" {
+resource "time_sleep" "wait_120_seconds" {
   depends_on = [kubernetes_manifest.ossm]
 
-  create_duration = "60s"
+  create_duration = "120s"
 }
 
 resource "kubectl_manifest" "basic" {
-  depends_on = [time_sleep.wait_60_seconds, kubernetes_namespace.istio]
+  depends_on = [time_sleep.wait_120_seconds, kubernetes_namespace.istio]
   yaml_body = <<YAML
 kind: ServiceMeshControlPlane
 apiVersion: maistra.io/v2
@@ -42,7 +42,7 @@ YAML
 }
 
 resource "kubectl_manifest" "console" {
-  depends_on = [time_sleep.wait_60_seconds, kubernetes_namespace.istio]
+  depends_on = [time_sleep.wait_120_seconds, kubernetes_namespace.istio]
   yaml_body = <<YAML
 kind: OSSMConsole
 apiVersion: kiali.io/v1alpha1
@@ -65,7 +65,7 @@ resource "time_sleep" "wait_60_seconds_2" {
 }
 
 resource "kubectl_manifest" "access" {
-  depends_on = [time_sleep.wait_60_seconds, kubernetes_namespace.istio, kubernetes_namespace.demo-apps]
+  depends_on = [time_sleep.wait_120_seconds, kubernetes_namespace.istio, kubernetes_namespace.demo-apps]
   yaml_body = <<YAML
 apiVersion: maistra.io/v1
 kind: ServiceMeshMemberRoll
