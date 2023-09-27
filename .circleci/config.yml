@@ -32,13 +32,13 @@ jobs:
           path: servicemesh/
       - terraform/plan:
           path: servicemesh/
-          var: domain=${CLUSTER_API_URL},cluster-context=${CLUSTER_CONTEXT}
+          var: domain=${CLUSTER_DOMAIN},cluster-context=${CLUSTER_CONTEXT}
       - terraform/apply:
           path: servicemesh/
-          var: domain=${CLUSTER_API_URL},cluster-context=${CLUSTER_CONTEXT}
+          var: domain=${CLUSTER_DOMAIN},cluster-context=${CLUSTER_CONTEXT}
       - terraform/destroy:
           path: servicemesh/
-          var: domain=${CLUSTER_API_URL},cluster-context=${CLUSTER_CONTEXT}
+          var: domain=${CLUSTER_DOMAIN},cluster-context=${CLUSTER_CONTEXT}
 
 workflows:
   terratest:

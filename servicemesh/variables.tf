@@ -5,5 +5,5 @@ variable "cluster-context" {
 
 variable "domain" {
   type    = string
-  default = "https://api.crc.testing:6443"
+  default = "apps-crc.testing"
 }
