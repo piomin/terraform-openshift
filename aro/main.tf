@@ -18,9 +18,9 @@ locals {
   resource_group_id = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/aro-${random_string.random.result}-${data.azurerm_resource_group.my_group.location}"
 }
 
-#output "subid" {
-#  value = data.azurerm_client_config.current.subscription_id
-#}
+output "subid" {
+  value = data.azurerm_client_config.current.subscription_id
+}
 
 resource "azurerm_virtual_network" "virtual_network" {
   name                = "aro-vnet-${var.guid}"
@@ -63,6 +63,15 @@ resource "azuread_service_principal_password" "aro_app" {
   service_principal_id = azuread_service_principal.aro_app.object_id
 }
 
+output "key_id" {
+  value = azuread_service_principal_password.aro_app.key_id
+}
+
+output "key_value" {
+  value = azuread_service_principal_password.aro_app.value
+  sensitive = true
+}
+
 resource "azurerm_role_assignment" "aro_cluster_service_principal_uaa" {
   scope                = data.azurerm_resource_group.my_group.id
   role_definition_name = "User Access Administrator"
@@ -101,6 +110,9 @@ resource "azapi_resource" "aro_cluster" {
   parent_id = data.azurerm_resource_group.my_group.id
   type      = "Microsoft.RedHatOpenShift/openShiftClusters@2023-07-01-preview"
   location  = data.azurerm_resource_group.my_group.location
+  timeouts = {
+    create = "75m"
+  }
   body = jsonencode({
     properties = {
       clusterProfile = {
@@ -115,7 +127,6 @@ resource "azapi_resource" "aro_cluster" {
         serviceCidr          = "172.30.0.0/16"
       }
       servicePrincipalProfile = {
-#        clientId             = data.azurerm_client_config.current.client_id
         clientId             = azuread_service_principal.aro_app.application_id
         clientSecret         = azuread_service_principal_password.aro_app.value
       }
