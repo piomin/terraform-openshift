@@ -19,7 +19,7 @@ metadata:
   name: basic
   namespace: istio
 spec:
-  version: v2.3
+  version: v2.4
   tracing:
     type: Jaeger
     sampling: 10000

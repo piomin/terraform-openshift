@@ -1,9 +1,15 @@
 variable "cluster-context" {
   type    = string
-  default = "crc-admin"
+  default = "system:admin"
 }
 
 variable "domain" {
   type    = string
-  default = "apps-crc.testing"
+#  default = "apps-crc.testing"
+  default = "apps.qdrzhgxyxy.eastus.aroapp.io"
+}
+
+variable "kubeconfig" {
+  type    = string
+  default = "~/.kube/config"
 }

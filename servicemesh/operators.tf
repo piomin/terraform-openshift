@@ -1,3 +1,9 @@
+resource "kubernetes_namespace" "openshift-distributed-tracing" {
+  metadata {
+    name = "openshift-distributed-tracing"
+  }
+}
+
 resource "kubernetes_manifest" "tracing-group" {
   manifest = {
     "apiVersion" = "operators.coreos.com/v1"

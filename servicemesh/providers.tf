@@ -10,18 +10,18 @@ terraform {
 }
 
 provider "kubernetes" {
-  config_path = "~/.kube/config"
+  config_path = var.kubeconfig
   config_context = var.cluster-context
 }
 
 provider "kubectl" {
-  config_path = "~/.kube/config"
+  config_path = var.kubeconfig
   config_context = var.cluster-context
 }
 
 provider "helm" {
   kubernetes {
-    config_path = "~/.kube/config"
+    config_path = var.kubeconfig
     config_context = var.cluster-context
   }
 }
