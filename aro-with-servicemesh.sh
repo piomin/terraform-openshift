@@ -1,8 +1,11 @@
 #! /bin/bash
 
+echo "Type your guid: "
+read guid
+
 cd aro
 terraform init
-terraform apply -auto-approve
+terraform apply -auto-approve -var guid=$guid
 domain="apps.$(terraform output -raw domain).eastus.aroapp.io"
 
 cd ../servicemesh

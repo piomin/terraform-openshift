@@ -161,12 +161,19 @@ resource "azapi_resource" "aro_cluster" {
   ]
 }
 
+resource "time_sleep" "wait_150_seconds" {
+  depends_on = [azapi_resource.aro_cluster]
+
+  create_duration = "150s"
+}
+
 resource "azapi_resource_action" "test" {
   type        = "Microsoft.RedHatOpenShift/openShiftClusters@2023-07-01-preview"
   resource_id = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/openenv-${var.guid}/providers/Microsoft.RedHatOpenShift/openShiftClusters/aro-cluster-${var.guid}"
   action      = "listAdminCredentials"
   method      = "POST"
   response_export_values = ["*"]
+  depends_on = [azapi_resource.aro_cluster, time_sleep.wait_150_seconds]
 }
 
 output "kubeconfig" {
