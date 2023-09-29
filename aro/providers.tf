@@ -20,7 +20,6 @@ provider "azurerm" {
   features {}
 }
 
-provider "azapi" {
-}
+provider "azapi" {}
 
 provider "random" {}

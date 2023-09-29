@@ -16,10 +16,7 @@ resource "random_string" "random" {
 
 locals {
   resource_group_id = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/aro-${random_string.random.result}-${data.azurerm_resource_group.my_group.location}"
-}
-
-output "subid" {
-  value = data.azurerm_client_config.current.subscription_id
+  domain            = random_string.random.result
 }
 
 resource "azurerm_virtual_network" "virtual_network" {
@@ -110,7 +107,7 @@ resource "azapi_resource" "aro_cluster" {
   parent_id = data.azurerm_resource_group.my_group.id
   type      = "Microsoft.RedHatOpenShift/openShiftClusters@2023-07-01-preview"
   location  = data.azurerm_resource_group.my_group.location
-  timeouts = {
+  timeouts {
     create = "75m"
   }
   body = jsonencode({
@@ -118,7 +115,7 @@ resource "azapi_resource" "aro_cluster" {
       clusterProfile = {
         resourceGroupId      = local.resource_group_id
         pullSecret           = file("~/Downloads/pull-secret-latest.txt")
-        domain               = random_string.random.result
+        domain               = local.domain
         fipsValidatedModules = "Disabled"
         version              = "4.12.25"
       }
@@ -162,4 +159,26 @@ resource "azapi_resource" "aro_cluster" {
     azuread_service_principal_password.aro_app,
     azurerm_role_assignment.aro_resource_provider_service_principal_network_contributor
   ]
+}
+
+resource "azapi_resource_action" "test" {
+  type        = "Microsoft.RedHatOpenShift/openShiftClusters@2023-07-01-preview"
+  resource_id = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/openenv-${var.guid}/providers/Microsoft.RedHatOpenShift/openShiftClusters/aro-cluster-${var.guid}"
+  action      = "listAdminCredentials"
+  method      = "POST"
+  response_export_values = ["*"]
+}
+
+output "kubeconfig" {
+  value = base64decode(jsondecode(azapi_resource_action.test.output).kubeconfig)
+}
+
+resource "local_file" "kubeconfig" {
+  content  =  base64decode(jsondecode(azapi_resource_action.test.output).kubeconfig)
+  filename = "kubeconfig"
+  depends_on = [azapi_resource_action.test]
+}
+
+output "domain" {
+  value = local.domain
 }

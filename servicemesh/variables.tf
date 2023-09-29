@@ -5,7 +5,6 @@ variable "cluster-context" {
 
 variable "domain" {
   type    = string
-#  default = "apps-crc.testing"
   default = "apps.qdrzhgxyxy.eastus.aroapp.io"
 }
 
