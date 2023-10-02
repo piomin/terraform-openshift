@@ -1,0 +1,36 @@
+projects:
+  - name: acm
+    namespace: openshift-gitops
+applications:
+  - name: local-cluster-config
+    namespace: openshift-gitops
+    project: default
+    source:
+      repoURL: https://github.com/piomin/openshift-cluster-config.git
+      targetRevision: HEAD
+      path: clusters
+      helm:
+        valueFiles:
+          - values-local.yaml
+    destination:
+      server: https://kubernetes.default.svc
+  - name: cicd-config
+    namespace: openshift-gitops
+    project: default
+    source:
+      repoURL: https://github.com/piomin/openshift-cluster-config.git
+      targetRevision: HEAD
+      path: cicd
+      directory:
+        recurse: true
+    destination:
+      server: https://kubernetes.default.svc
+  - name: multi-cluster-config
+    namespace: openshift-gitops
+    project: default
+    source:
+      repoURL: https://github.com/piomin/openshift-cluster-config.git
+      targetRevision: HEAD
+      path: multicluster
+    destination:
+      server: https://kubernetes.default.svc
