@@ -1,6 +1,6 @@
 # OpenShift with Terraform Configuration [![Twitter](https://img.shields.io/twitter/follow/piotr_minkowski.svg?style=social&logo=twitter&label=Follow%20Me)](https://twitter.com/piotr_minkowski)
 
-[![CircleCI](https://circleci.com/gh/piomin/sample-spring-microservices-new.svg?style=svg)](https://circleci.com/gh/piomin/sample-spring-microservices-new)
+[![CircleCI](https://circleci.com/gh/piomin/terraform-openshift.svg?style=svg)](https://circleci.com/gh/piomin/terraform-openshift)
 
 In this project I'm demonstrating how to use Terraform to create and manage OpenShift clusters.
 
