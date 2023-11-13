@@ -4,6 +4,24 @@ resource "time_sleep" "wait_60_seconds_after_acs" {
   create_duration = "60s"
 }
 
+resource "kubernetes_secret" "rhacs-declarative" {
+  metadata {
+    name = "rhacs-declarative"
+    namespace = "rhacs-operator"
+  }
+  data = {}
+  depends_on = [kubernetes_manifest.acs-subscription]
+}
+
+resource "kubernetes_config_map" "rhacs-declarative" {
+  metadata {
+    name = "rhacs-declarative"
+    namespace = "rhacs-operator"
+  }
+  data = {}
+  depends_on = [kubernetes_manifest.acs-subscription]
+}
+
 resource "kubectl_manifest" "acs-central" {
   depends_on = [time_sleep.wait_60_seconds_after_acs, kubernetes_manifest.acs-subscription]
   yaml_body = <<YAML
@@ -17,5 +35,10 @@ spec:
     exposure:
       route:
         enabled: true
+    declarativeConfiguration:
+      configMaps:
+      - name: rhacs-declarative
+      secrets:
+      - name: rhacs-declarative
 YAML
 }
