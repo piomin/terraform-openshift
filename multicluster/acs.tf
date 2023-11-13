@@ -6,7 +6,7 @@ resource "time_sleep" "wait_60_seconds_after_acs" {
 
 resource "kubernetes_secret" "rhacs-declarative" {
   metadata {
-    name = "rhacs-declarative"
+    name = "rhacs-declarative-sec"
     namespace = "rhacs-operator"
   }
   data = {}
@@ -15,7 +15,7 @@ resource "kubernetes_secret" "rhacs-declarative" {
 
 resource "kubernetes_config_map" "rhacs-declarative" {
   metadata {
-    name = "rhacs-declarative"
+    name = "rhacs-declarative-cm"
     namespace = "rhacs-operator"
   }
   data = {}
@@ -37,8 +37,8 @@ spec:
         enabled: true
     declarativeConfiguration:
       configMaps:
-      - name: rhacs-declarative
+      - name: rhacs-declarative-cm
       secrets:
-      - name: rhacs-declarative
+      - name: rhacs-declarative-sec
 YAML
 }
