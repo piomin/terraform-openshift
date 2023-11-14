@@ -4,32 +4,39 @@ resource "time_sleep" "wait_60_seconds_after_acs" {
   create_duration = "60s"
 }
 
+resource "kubernetes_namespace" "stackrox" {
+  metadata {
+    name = "stackrox"
+  }
+  depends_on = [kubernetes_manifest.acs-subscription]
+}
+
 resource "kubernetes_secret" "rhacs-declarative" {
   metadata {
     name = "rhacs-declarative-sec"
-    namespace = "rhacs-operator"
+    namespace = "stackrox"
   }
   data = {}
-  depends_on = [kubernetes_manifest.acs-subscription]
+  depends_on = [kubernetes_namespace.stackrox]
 }
 
 resource "kubernetes_config_map" "rhacs-declarative" {
   metadata {
     name = "rhacs-declarative-cm"
-    namespace = "rhacs-operator"
+    namespace = "stackrox"
   }
   data = {}
-  depends_on = [kubernetes_manifest.acs-subscription]
+  depends_on = [kubernetes_namespace.stackrox]
 }
 
 resource "kubectl_manifest" "acs-central" {
-  depends_on = [time_sleep.wait_60_seconds_after_acs, kubernetes_manifest.acs-subscription]
+  depends_on = [time_sleep.wait_60_seconds_after_acs, kubernetes_namespace.stackrox]
   yaml_body = <<YAML
 kind: Central
 apiVersion: platform.stackrox.io/v1alpha1
 metadata:
   name: stackrox-central-services
-  namespace: rhacs-operator
+  namespace: stackrox
 spec:
   central:
     exposure:
