@@ -71,21 +71,3 @@ resource "kubernetes_manifest" "ossm" {
     }
   }
 }
-
-resource "kubernetes_manifest" "ossmconsole" {
-  manifest = {
-    "apiVersion" = "operators.coreos.com/v1alpha1"
-    "kind"       = "Subscription"
-    "metadata"   = {
-      "name"      = "ossmconsole"
-      "namespace" = "openshift-operators"
-    }
-    "spec" = {
-      "channel"             = "candidate"
-      "installPlanApproval" = "Automatic"
-      "name"                = "ossmconsole"
-      "source"              = "community-operators"
-      "sourceNamespace"     = "openshift-marketplace"
-    }
-  }
-}

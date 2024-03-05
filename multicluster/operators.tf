@@ -28,7 +28,7 @@ resource "kubernetes_manifest" "acm-subscription" {
       "namespace" = "open-cluster-management"
     }
     "spec" = {
-      "channel"             = "release-2.8"
+      "channel"             = "release-2.9"
       "installPlanApproval" = "Automatic"
       "name"                = "advanced-cluster-management"
       "source"              = "redhat-operators"

@@ -14,6 +14,10 @@ applications:
           - values-local.yaml
     destination:
       server: https://kubernetes.default.svc
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
   - name: cicd-config
     namespace: openshift-gitops
     project: default

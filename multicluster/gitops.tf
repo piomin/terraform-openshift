@@ -1,7 +1,7 @@
-resource "time_sleep" "wait_90_seconds_after_gitops" {
+resource "time_sleep" "wait_120_seconds_after_gitops" {
   depends_on = [kubernetes_manifest.gitops-subscription]
 
-  create_duration = "90s"
+  create_duration = "120s"
 }
 
 resource "kubernetes_manifest" "cluster-admins-group" {
@@ -13,7 +13,8 @@ resource "kubernetes_manifest" "cluster-admins-group" {
     }
     "users" = [
       "opentlc-mgr",
-      "admin"
+      "admin",
+      "tech-admin"
     ]
   }
 }
@@ -28,6 +29,23 @@ resource "kubernetes_manifest" "app-owners" {
     "users" = [
       "pminkows"
     ]
+  }
+}
+
+resource "kubernetes_cluster_role_binding" "cluster-admins-role-binding" {
+  depends_on = [kubernetes_manifest.gitops-subscription]
+  metadata {
+    name = "cluster-admins-role-binding"
+  }
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind      = "ClusterRole"
+    name      = "cluster-admin"
+  }
+  subject {
+    kind      = "Group"
+    name      = "cluster-admins"
+    api_group = "rbac.authorization.k8s.io"
   }
 }
 
@@ -60,6 +78,6 @@ resource "helm_release" "argocd-apps" {
     file("argocd/apps.yaml")
   ]
 
-  depends_on       = [time_sleep.wait_90_seconds_after_gitops]
+  depends_on       = [time_sleep.wait_120_seconds_after_gitops]
 
 }

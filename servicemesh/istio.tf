@@ -41,23 +41,6 @@ spec:
 YAML
 }
 
-resource "kubectl_manifest" "console" {
-  depends_on = [time_sleep.wait_120_seconds, kubernetes_namespace.istio]
-  yaml_body = <<YAML
-kind: OSSMConsole
-apiVersion: kiali.io/v1alpha1
-metadata:
-  name: ossmconsole
-  namespace: istio
-spec:
-  kiali:
-    serviceName: ''
-    serviceNamespace: ''
-    servicePort: 0
-    url: ''
-YAML
-}
-
 resource "time_sleep" "wait_60_seconds_2" {
   depends_on = [kubectl_manifest.basic]
 
