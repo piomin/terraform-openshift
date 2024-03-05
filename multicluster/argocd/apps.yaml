@@ -38,3 +38,30 @@ applications:
       path: multicluster
     destination:
       server: https://kubernetes.default.svc
+applicationsets:
+  - name: cluster-config
+    namespace: openshift-gitops
+    generators:
+      - clusterDecisionResource:
+          configMapRef: acm-placement
+          labelSelector:
+            matchLabels:
+              cluster.open-cluster-management.io/placement: demo-global
+          requeueAfterSeconds: 180
+    template:
+      metadata:
+        name: '{{name}}-cluster-config'
+      spec:
+        destination:
+          server: '{{server}}'
+        project: default
+        source:
+          path: clusters
+          repoURL: 'https://github.com/piomin/openshift-cluster-config.git'
+          targetRevision: master
+          helm:
+            valueFiles:
+              - values-remote.yaml
+        syncPolicy:
+          automated:
+            selfHeal: true

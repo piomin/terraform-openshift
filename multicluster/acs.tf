@@ -47,5 +47,13 @@ spec:
       - name: rhacs-declarative-cm
       secrets:
       - name: rhacs-declarative-sec
+    db:
+      resources:
+        requests:
+          cpu: '1'
+          memory: 1Gi
+        limits:
+          cpu: '2'
+          memory: 4Gi
 YAML
 }
