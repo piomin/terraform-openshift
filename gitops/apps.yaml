@@ -1,0 +1,17 @@
+applications:
+  - name: local-cluster-config
+    namespace: openshift-gitops
+    project: default
+    source:
+      repoURL: https://github.com/piomin/openshift-cluster-config.git
+      targetRevision: HEAD
+      path: clusters
+      helm:
+        valueFiles:
+          - values-local.yaml
+    destination:
+      server: https://kubernetes.default.svc
+    syncPolicy:
+      automated:
+        prune: true
+        selfHeal: true
