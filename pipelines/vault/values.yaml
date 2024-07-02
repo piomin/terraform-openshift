@@ -1,0 +1,25 @@
+server:
+  dev:
+    enabled: true
+  route:
+    enabled: true
+    host: ""
+    tls: null
+  image:
+    repository: "registry.connect.redhat.com/hashicorp/vault"
+    tag: "latest"
+  serviceAccount:
+    name: vault
+    create: false
+global:
+  openshift: true
+csi:
+  debug: true
+  enabled: true
+  daemonSet:
+    providersDir: /var/run/secrets-store-csi-providers
+    securityContext:
+      container:
+        privileged: true
+injector:
+  enabled: false
