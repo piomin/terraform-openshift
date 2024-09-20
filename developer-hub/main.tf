@@ -47,13 +47,24 @@ resource "kubernetes_config_map" "app-config-rhdh" {
   depends_on = [kubernetes_namespace.backstage]
 }
 
+resource "kubernetes_secret" "default-token" {
+  metadata {
+    name = "default-token"
+    namespace = "backstage"
+    annotations = {
+      kubernetes.io/service-account.name = "default"
+    }
+  }
+  type = "kubernetes.io/service-account-token"
+}
+
 resource "kubernetes_secret" "app-secrets-rhdh" {
   metadata {
     name = "app-secrets-rhdh"
     namespace = "backstage"
   }
   data = {
-    GITHUB_ORG = "piomin"
+    GITHUB_ORG = var.github-org
     SONARQUBE_URL = "https://sonarcloud.io"
     SONARQUBE_TOKEN = var.sonar-token
     GITHUB_TOKEN = var.github-token

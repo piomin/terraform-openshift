@@ -38,7 +38,15 @@ integrations:
   github:
     - host: github.com
       token: ${GITHUB_TOKEN}
+  azure:
+    - host: dev.azure.com
+      credentials:
+        - personalAccessToken: ${AZURE_TOKEN}
 
 sonarqube:
   baseUrl: https://sonarcloud.io
   apiKey: ${SONARQUBE_TOKEN}
+
+azureDevOps:
+  host: dev.azure.com
+  organization: ${AZURE_ORG}

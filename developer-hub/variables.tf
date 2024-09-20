@@ -13,6 +13,11 @@ variable "sonar-token" {
   default = ""
 }
 
+variable "github-org" {
+  type    = string
+  default = "piomin"
+}
+
 variable "github-token" {
   type    = string
   default = ""
