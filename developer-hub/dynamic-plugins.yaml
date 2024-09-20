@@ -1,0 +1,437 @@
+includes:
+  - dynamic-plugins.default.yaml
+plugins:
+  - package: ./dynamic-plugins/dist/backstage-plugin-scaffolder-backend-module-github-dynamic
+  - package: ./dynamic-plugins/dist/backstage-plugin-catalog-backend-module-github-dynamic
+    disabled: true
+    pluginConfig:
+      catalog:
+        providers:
+          github:
+            providerId:
+              organization: "${GITHUB_ORG}"
+            schedule:
+              frequency:
+                minutes: 60
+              initialDelay:
+                seconds: 15
+              timeout:
+                minutes: 15
+  - package: ./dynamic-plugins/dist/backstage-plugin-catalog-backend-module-github-org-dynamic
+    disabled: true
+    pluginConfig:
+      catalog:
+        providers:
+          githubOrg:
+            id: production
+            githubUrl: "${GITHUB_URL}"
+            orgs: [ "${GITHUB_ORG}" ]
+            schedule:
+              frequency:
+                minutes: 60
+              initialDelay:
+                seconds: 15
+              timeout:
+                minutes: 15
+  - package:  ./dynamic-plugins/dist/backstage-plugin-github-issues
+    disabled: false
+    pluginConfig:
+      dynamicPlugins:
+        frontend:
+          backstage.plugin-github-issues:
+            mountPoints:
+              - mountPoint: entity.page.issues/cards
+                importName: GithubIssuesCard
+                config:
+                  layout:
+                    gridColumn: "1 / -1"
+                  if:
+                    allOf:
+                      - hasAnnotation: github.com/project-slug
+  - package: ./dynamic-plugins/dist/roadiehq-backstage-plugin-github-pull-requests
+    disabled: false
+    pluginConfig:
+      dynamicPlugins:
+        frontend:
+          roadiehq.backstage-plugin-github-pull-requests:
+            mountPoints:
+              - mountPoint: entity.page.overview/cards
+                importName: EntityGithubPullRequestsOverviewCard
+                config:
+                  layout:
+                    gridColumnEnd:
+                      lg: "span 4"
+                      md: "span 6"
+                      xs: "span 12"
+                  if:
+                    allOf:
+                      - isGithubPullRequestsAvailable
+              - mountPoint: entity.page.pull-requests/cards
+                importName: EntityGithubPullRequestsContent
+                config:
+                  layout:
+                    gridColumn: "1 / -1"
+                  if:
+                    allOf:
+                      - isGithubPullRequestsAvailable
+
+  # Group: Kubernetes
+  - package: ./dynamic-plugins/dist/backstage-plugin-kubernetes-backend-dynamic
+    disabled: false
+    pluginConfig:
+      kubernetes:
+        customResources:
+          - group: 'tekton.dev'
+            apiVersion: 'v1beta1'
+            plural: 'pipelines'
+          - group: 'tekton.dev'
+            apiVersion: 'v1beta1'
+            plural: 'pipelineruns'
+          - group: 'tekton.dev'
+            apiVersion: 'v1beta1'
+            plural: 'taskruns'
+          - group: 'route.openshift.io'
+            apiVersion: 'v1'
+            plural: 'routes'
+        serviceLocatorMethod:
+          type: 'multiTenant'
+        clusterLocatorMethods:
+          - type: 'config'
+            clusters:
+              - name: ocp
+                url: https://api.piomin.eastus.aroapp.io:6443
+                authProvider: 'serviceAccount'
+                skipTLSVerify: true
+                skipMetricsLookup: true
+                serviceAccountToken: ${OPENSHIFT_TOKEN}
+  - package: ./dynamic-plugins/dist/backstage-plugin-kubernetes
+    disabled: false
+    pluginConfig:
+      dynamicPlugins:
+        frontend:
+          backstage.plugin-kubernetes:
+            mountPoints:
+              - mountPoint: entity.page.kubernetes/cards
+                importName: EntityKubernetesContent
+                config:
+                  layout:
+                    gridColumn: "1 / -1"
+                  if:
+                    anyOf:
+                      - hasAnnotation: backstage.io/kubernetes-id
+                      - hasAnnotation: backstage.io/kubernetes-namespace
+  - package: ./dynamic-plugins/dist/janus-idp-backstage-plugin-topology
+    disabled: false
+    pluginConfig:
+      dynamicPlugins:
+        frontend:
+          janus-idp.backstage-plugin-topology:
+            mountPoints:
+              - mountPoint: entity.page.topology/cards
+                importName: TopologyPage
+                config:
+                  layout:
+                    gridColumn: "1 / -1"
+                    height: 75vh
+                  if:
+                    anyOf:
+                      - hasAnnotation: backstage.io/kubernetes-id
+                      - hasAnnotation: backstage.io/kubernetes-namespace
+
+  # Group: ArgoCD
+  - package: ./dynamic-plugins/dist/roadiehq-backstage-plugin-argo-cd-backend-dynamic
+    disabled: false
+    pluginConfig:
+      argocd:
+        appLocatorMethods:
+          - type: 'config'
+            instances:
+              - name: main
+                url: "https://openshift-gitops-server-openshift-gitops.apps.piomin.eastus.aroapp.io"
+                token: "${ARGOCD_TOKEN}"
+  - package: ./dynamic-plugins/dist/roadiehq-scaffolder-backend-argocd-dynamic
+    disabled: false
+    pluginConfig:
+      argocd:
+        appLocatorMethods:
+          - type: 'config'
+            instances:
+              - name: main
+                url: "https://openshift-gitops-server-openshift-gitops.apps.piomin.eastus.aroapp.io"
+                token: "${ARGOCD_TOKEN}"
+  - package: ./dynamic-plugins/dist/roadiehq-backstage-plugin-argo-cd
+    disabled: false
+    pluginConfig:
+      dynamicPlugins:
+        frontend:
+          roadiehq.backstage-plugin-argo-cd:
+            mountPoints:
+              - mountPoint: entity.page.overview/cards
+                importName: EntityArgoCDOverviewCard
+                config:
+                  layout:
+                    gridColumnEnd:
+                      lg: "span 8"
+                      xs: "span 12"
+                  if:
+                    allOf:
+                      - isArgocdAvailable
+              - mountPoint: entity.page.cd/cards
+                importName: EntityArgoCDHistoryCard
+                config:
+                  layout:
+                    gridColumn: "1 / -1"
+                  if:
+                    allOf:
+                      - isArgocdAvailable
+  - package: ./dynamic-plugins/dist/janus-idp-backstage-plugin-argocd
+    disabled: false
+    pluginConfig:
+      dynamicPlugins:
+        frontend:
+          janus-idp.backstage-plugin-argocd:
+            mountPoints:
+              - mountPoint: entity.page.overview/cards
+                importName: ArgocdDeploymentSummary
+                config:
+                  layout:
+                    gridColumnEnd:
+                      lg: "span 8"
+                      xs: "span 12"
+                  if:
+                    allOf:
+                      - isArgocdConfigured
+              - mountPoint: entity.page.cd/cards
+                importName: ArgocdDeploymentLifecycle
+                config:
+                  layout:
+                    gridColumn: '1 / -1'
+                  if:
+                    allOf:
+                      - isArgocdConfigured
+
+  # Group: Azure Devops
+  - package: ./dynamic-plugins/dist/backstage-plugin-scaffolder-backend-module-azure-dynamic
+  - package: ./dynamic-plugins/dist/backstage-plugin-azure-devops-backend-dynamic
+    disabled: false
+    pluginConfig:
+      azureDevOps:
+        host: dev.azure.com
+        token: ${AZURE_TOKEN}
+        organization: ${AZURE_ORG}
+  - package: ./dynamic-plugins/dist/backstage-plugin-azure-devops
+    disabled: false
+    pluginConfig:
+      dynamicPlugins:
+        frontend:
+          backstage.plugin-azure-devops:
+            mountPoints:
+              - mountPoint: entity.page.ci/cards
+                importName: EntityAzurePipelinesContent
+                config:
+                  layout:
+                    gridColumn: "1 / -1"
+                  if:
+                    allOf:
+                      - isAzureDevOpsAvailable
+              - mountPoint: entity.page.pull-requests/cards
+                importName: EntityAzurePullRequestsContent
+                config:
+                  layout:
+                    gridColumn: "1 / -1"
+                  if:
+                    allOf:
+                      - isAzureDevOpsAvailable
+  - package: ./dynamic-plugins/dist/parfuemerie-douglas-scaffolder-backend-module-azure-repositories
+    disabled: true
+
+  # Group: SonarQube
+  - package: ./dynamic-plugins/dist/backstage-plugin-sonarqube-backend-dynamic
+    disabled: false
+    pluginConfig:
+      sonarqube:
+        baseUrl: ${SONARQUBE_URL}
+        apiKey: ${SONARQUBE_TOKEN}
+  - package: ./dynamic-plugins/dist/backstage-plugin-sonarqube
+    disabled: true
+    pluginConfig:
+      dynamicPlugins:
+        frontend:
+          backstage.plugin-sonarqube:
+            mountPoints:
+              - mountPoint: entity.page.overview/cards
+                importName: EntitySonarQubeCard
+                config:
+                  layout:
+                    gridColumnEnd:
+                      lg: "span 4"
+                      md: "span 6"
+                      xs: "span 12"
+                  if:
+                    allOf:
+                      - isSonarQubeAvailable
+
+  # Techdocs
+  - package: ./dynamic-plugins/dist/backstage-plugin-techdocs-backend-dynamic
+    pluginConfig:
+      # Reference documentation http://backstage.io/docs/features/techdocs/configuration
+      # Note: After experimenting with basic setup, use CI/CD to generate docs
+      # and an external cloud storage when deploying TechDocs for production use-case.
+      # https://backstage.io/docs/features/techdocs/how-to-guides#how-to-migrate-from-techdocs-basic-to-recommended-deployment-approach
+      techdocs:
+        builder: local
+        generator:
+          runIn: local
+        publisher:
+          type: local
+  - package: ./dynamic-plugins/dist/backstage-plugin-techdocs
+    pluginConfig:
+      dynamicPlugins:
+        frontend:
+          backstage.plugin-techdocs:
+            routeBindings:
+              targets:
+                - importName: techdocsPlugin
+              bindings:
+                - bindTarget: catalogPlugin.externalRoutes
+                  bindMap:
+                    viewTechDoc: techdocsPlugin.routes.docRoot
+                - bindTarget: scaffolderPlugin.externalRoutes
+                  bindMap:
+                    viewTechDoc: techdocsPlugin.routes.docRoot
+            dynamicRoutes:
+              - path: /docs
+                importName: TechDocsIndexPage
+                menuItem:
+                  icon: docs
+                  text: Docs
+              - path: /docs/:namespace/:kind/:name/*
+                importName: TechDocsReaderPage
+            mountPoints:
+              - mountPoint: entity.page.docs/cards
+                importName: EntityTechdocsContent
+                config:
+                  layout:
+                    gridColumn: "1 / -1"
+                  if:
+                    allOf:
+                      - isTechDocsAvailable
+              - mountPoint: search.page.results
+                importName: TechDocsSearchResultListItem
+              - mountPoint: search.page.filters
+                importName: TechdocsSearchFilter
+              - mountPoint: search.page.types
+                importName: techdocsSearchType
+                config:
+                  props:
+                    name: Documentation
+                    icon: docs
+
+  # Standalone plugins
+
+  - package: ./dynamic-plugins/dist/backstage-plugin-scaffolder-backend-module-gerrit-dynamic
+
+#  - package: ./dynamic-plugins/dist/roadiehq-scaffolder-backend-module-utils-dynamic
+
+  - package: ./dynamic-plugins/dist/roadiehq-scaffolder-backend-module-http-request-dynamic
+
+  - package: ./dynamic-plugins/dist/janus-idp-backstage-scaffolder-backend-module-quay-dynamic
+
+  - package: ./dynamic-plugins/dist/janus-idp-backstage-scaffolder-backend-module-regex-dynamic
+
+  - package: ./dynamic-plugins/dist/janus-idp-backstage-plugin-rbac
+    disabled: true
+    pluginConfig:
+      dynamicPlugins:
+        frontend:
+          janus-idp.backstage-plugin-rbac:
+            mountPoints:
+              - mountPoint: admin.page.rbac/cards
+                module: RbacPlugin
+                importName: RbacPage
+                config:
+                  layout:
+                    gridColumn: "1 / -1"
+                    width: 100vw
+                  props:
+                    useHeader: false
+            dynamicRoutes:
+              - path: /admin/rbac
+                module: RbacPlugin
+                importName: RbacPage
+
+  - package: ./dynamic-plugins/dist/janus-idp-backstage-scaffolder-backend-module-sonarqube-dynamic
+    disabled: false
+
+  - package: ./dynamic-plugins/dist/janus-idp-backstage-plugin-tekton
+    disabled: false
+    pluginConfig:
+      dynamicPlugins:
+        frontend:
+          janus-idp.backstage-plugin-tekton:
+            mountPoints:
+              - mountPoint: entity.page.ci/cards
+                importName: TektonCI
+                config:
+                  layout:
+                    gridColumn: "1 / -1"
+                  if:
+                    allOf:
+                      - isTektonCIAvailable
+
+  - package: ./dynamic-plugins/dist/janus-idp-backstage-plugin-quay
+    disabled: false
+    pluginConfig:
+      dynamicPlugins:
+        frontend:
+          janus-idp.backstage-plugin-quay:
+            mountPoints:
+              - mountPoint: entity.page.image-registry/cards
+                importName: QuayPage
+                config:
+                  layout:
+                    gridColumn: 1 / -1
+                  if:
+                    anyOf:
+                      - isQuayAvailable
+
+  - package: ./dynamic-plugins/dist/janus-idp-backstage-plugin-nexus-repository-manager
+    disabled: false
+    pluginConfig:
+      dynamicPlugins:
+        frontend:
+          janus-idp.backstage-plugin-nexus-repository-manager:
+            mountPoints:
+              - mountPoint: entity.page.image-registry/cards
+                importName: NexusRepositoryManagerPage
+                config:
+                  layout:
+                    gridColumn: 1 / -1
+                  if:
+                    anyOf:
+                      - isNexusRepositoryManagerAvailable
+
+  - package: ./dynamic-plugins/dist/backstage-plugin-tech-radar
+    disabled: true
+    pluginConfig:
+      dynamicPlugins:
+        frontend:
+          backstage.plugin-tech-radar:
+            apiFactories:
+              - importName: TechRadarApi
+            appIcons:
+              - name: techRadar
+                importName: TechRadarIcon
+            dynamicRoutes:
+              - path: /tech-radar
+                importName: TechRadarPage
+                menuItem:
+                  icon: techRadar
+                  text: Tech Radar
+                config:
+                  props:
+                    width: 1500
+                    height: 800
+
+  - package: ./dynamic-plugins/dist/janus-idp-backstage-plugin-catalog-backend-module-scaffolder-relation-processor-dynamic
+    disabled: false

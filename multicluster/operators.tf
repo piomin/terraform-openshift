@@ -1,41 +1,41 @@
-resource "kubernetes_namespace" "acm" {
-  metadata {
-    name = "open-cluster-management"
-  }
-}
-
-resource "kubernetes_manifest" "acm-operator-group" {
-  manifest = {
-    "apiVersion" = "operators.coreos.com/v1"
-    "kind"       = "OperatorGroup"
-    "metadata"   = {
-      "name"      = "open-cluster-management"
-      "namespace" = "open-cluster-management"
-    }
-    "spec" = {
-      "upgradeStrategy" = "Default"
-      "targetNamespaces" = ["open-cluster-management"]
-    }
-  }
-}
-
-resource "kubernetes_manifest" "acm-subscription" {
-  manifest = {
-    "apiVersion" = "operators.coreos.com/v1alpha1"
-    "kind"       = "Subscription"
-    "metadata" = {
-      "name"      = "acm-operator-subscription"
-      "namespace" = "open-cluster-management"
-    }
-    "spec" = {
-      "channel"             = "release-2.9"
-      "installPlanApproval" = "Automatic"
-      "name"                = "advanced-cluster-management"
-      "source"              = "redhat-operators"
-      "sourceNamespace"     = "openshift-marketplace"
-    }
-  }
-}
+# resource "kubernetes_namespace" "acm" {
+#   metadata {
+#     name = "open-cluster-management"
+#   }
+# }
+#
+# resource "kubernetes_manifest" "acm-operator-group" {
+#   manifest = {
+#     "apiVersion" = "operators.coreos.com/v1"
+#     "kind"       = "OperatorGroup"
+#     "metadata"   = {
+#       "name"      = "open-cluster-management"
+#       "namespace" = "open-cluster-management"
+#     }
+#     "spec" = {
+#       "upgradeStrategy" = "Default"
+#       "targetNamespaces" = ["open-cluster-management"]
+#     }
+#   }
+# }
+#
+# resource "kubernetes_manifest" "acm-subscription" {
+#   manifest = {
+#     "apiVersion" = "operators.coreos.com/v1alpha1"
+#     "kind"       = "Subscription"
+#     "metadata" = {
+#       "name"      = "acm-operator-subscription"
+#       "namespace" = "open-cluster-management"
+#     }
+#     "spec" = {
+#       "channel"             = "release-2.9"
+#       "installPlanApproval" = "Automatic"
+#       "name"                = "advanced-cluster-management"
+#       "source"              = "redhat-operators"
+#       "sourceNamespace"     = "openshift-marketplace"
+#     }
+#   }
+# }
 
 resource "kubernetes_namespace" "acs" {
   metadata {
@@ -75,41 +75,41 @@ resource "kubernetes_manifest" "acs-subscription" {
   }
 }
 
-resource "kubernetes_manifest" "gitops-subscription" {
-  manifest = {
-    "apiVersion" = "operators.coreos.com/v1alpha1"
-    "kind"       = "Subscription"
-    "metadata" = {
-      "name"      = "openshift-gitops-operator"
-      "namespace" = "openshift-operators"
-    }
-    "spec" = {
-      "channel"             = "latest"
-      "installPlanApproval" = "Automatic"
-      "name"                = "openshift-gitops-operator"
-      "source"              = "redhat-operators"
-      "sourceNamespace"     = "openshift-marketplace"
-    }
-  }
-}
+# resource "kubernetes_manifest" "gitops-subscription" {
+#   manifest = {
+#     "apiVersion" = "operators.coreos.com/v1alpha1"
+#     "kind"       = "Subscription"
+#     "metadata" = {
+#       "name"      = "openshift-gitops-operator"
+#       "namespace" = "openshift-operators"
+#     }
+#     "spec" = {
+#       "channel"             = "latest"
+#       "installPlanApproval" = "Automatic"
+#       "name"                = "openshift-gitops-operator"
+#       "source"              = "redhat-operators"
+#       "sourceNamespace"     = "openshift-marketplace"
+#     }
+#   }
+# }
 
-resource "kubernetes_manifest" "pipelines-subscription" {
-  manifest = {
-    "apiVersion" = "operators.coreos.com/v1alpha1"
-    "kind"       = "Subscription"
-    "metadata" = {
-      "name"      = "openshift-pipelines-operator-rh"
-      "namespace" = "openshift-operators"
-    }
-    "spec" = {
-      "channel"             = "latest"
-      "installPlanApproval" = "Automatic"
-      "name"                = "openshift-pipelines-operator-rh"
-      "source"              = "redhat-operators"
-      "sourceNamespace"     = "openshift-marketplace"
-    }
-  }
-}
+# resource "kubernetes_manifest" "pipelines-subscription" {
+#   manifest = {
+#     "apiVersion" = "operators.coreos.com/v1alpha1"
+#     "kind"       = "Subscription"
+#     "metadata" = {
+#       "name"      = "openshift-pipelines-operator-rh"
+#       "namespace" = "openshift-operators"
+#     }
+#     "spec" = {
+#       "channel"             = "latest"
+#       "installPlanApproval" = "Automatic"
+#       "name"                = "openshift-pipelines-operator-rh"
+#       "source"              = "redhat-operators"
+#       "sourceNamespace"     = "openshift-marketplace"
+#     }
+#   }
+# }
 
 resource "kubernetes_namespace" "patch" {
   metadata {
