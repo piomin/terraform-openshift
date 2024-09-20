@@ -60,6 +60,9 @@ resource "kubernetes_secret" "app-secrets-rhdh" {
     GITHUB_CLIENT_ID = var.github-client-id
     GITHUB_CLIENT_SECRET = var.github-client-secret
     ARGOCD_TOKEN = var.argocd-token
+    OPENSHIFT_TOKEN = var.openshift-token
+    AZURE_TOKEN = var.azure-token
+    AZURE_ORG = var.azure-org
   }
 }
 

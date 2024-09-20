@@ -28,7 +28,22 @@ variable "argocd-token" {
   default = ""
 }
 
+variable "openshift-token" {
+  type    = string
+  default = ""
+}
+
 variable "github-client-secret" {
   type    = string
   default = ""
+}
+
+variable "azure-token" {
+  type    = string
+  default = ""
+}
+
+variable "azure-org" {
+  type    = string
+  default = "pminkows"
 }
