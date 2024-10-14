@@ -47,16 +47,16 @@ resource "kubernetes_config_map" "app-config-rhdh" {
   depends_on = [kubernetes_namespace.backstage]
 }
 
-resource "kubernetes_secret" "default-token" {
-  metadata {
-    name = "default-token"
-    namespace = "backstage"
-    annotations = {
-      kubernetes.io/service-account.name = "default"
-    }
-  }
-  type = "kubernetes.io/service-account-token"
-}
+# resource "kubernetes_secret" "default-token" {
+#   metadata {
+#     name = "default-token"
+#     namespace = "backstage"
+#     annotations = {
+#       kubernetes.io/service-account.name = "default"
+#     }
+#   }
+#   type = "kubernetes.io/service-account-token"
+# }
 
 resource "kubernetes_secret" "app-secrets-rhdh" {
   metadata {

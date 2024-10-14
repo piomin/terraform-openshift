@@ -253,7 +253,7 @@ plugins:
         baseUrl: ${SONARQUBE_URL}
         apiKey: ${SONARQUBE_TOKEN}
   - package: ./dynamic-plugins/dist/backstage-plugin-sonarqube
-    disabled: true
+    disabled: false
     pluginConfig:
       dynamicPlugins:
         frontend:
