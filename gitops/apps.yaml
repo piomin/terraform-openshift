@@ -15,3 +15,14 @@ applications:
       automated:
         prune: true
         selfHeal: true
+  - name: cicd-config
+    namespace: openshift-gitops
+    project: default
+    source:
+      repoURL: https://github.com/piomin/openshift-cluster-config.git
+      targetRevision: HEAD
+      path: cicd
+      directory:
+        recurse: true
+    destination:
+      server: https://kubernetes.default.svc
