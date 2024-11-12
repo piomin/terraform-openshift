@@ -1,10 +1,10 @@
 
 # (1)
 app:
-  baseUrl: https://backstage-developer-hub-backstage.apps.piomin.eastus.aroapp.io
+  baseUrl: https://backstage-developer-hub-backstage.apps.${DOMAIN}
 
 backend:
-  baseUrl: https://backstage-developer-hub-backstage.apps.piomin.eastus.aroapp.io
+  baseUrl: https://backstage-developer-hub-backstage.apps.${DOMAIN}
 
 # (2)
 auth:
@@ -50,3 +50,5 @@ sonarqube:
 azureDevOps:
   host: dev.azure.com
   organization: ${AZURE_ORG}
+
+dangerouslyAllowSignInWithoutUserInCatalog: true

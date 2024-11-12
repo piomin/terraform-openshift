@@ -99,7 +99,7 @@ plugins:
           - type: 'config'
             clusters:
               - name: ocp
-                url: https://api.piomin.eastus.aroapp.io:6443
+                url: https://api.yg46z7uk.eastus.aroapp.io:6443
                 authProvider: 'serviceAccount'
                 skipTLSVerify: true
                 skipMetricsLookup: true
@@ -147,7 +147,7 @@ plugins:
           - type: 'config'
             instances:
               - name: main
-                url: "https://openshift-gitops-server-openshift-gitops.apps.piomin.eastus.aroapp.io"
+                url: "https://openshift-gitops-server-openshift-gitops.apps.yg46z7uk.eastus.aroapp.io"
                 token: "${ARGOCD_TOKEN}"
   - package: ./dynamic-plugins/dist/roadiehq-scaffolder-backend-argocd-dynamic
     disabled: false
@@ -157,7 +157,7 @@ plugins:
           - type: 'config'
             instances:
               - name: main
-                url: "https://openshift-gitops-server-openshift-gitops.apps.piomin.eastus.aroapp.io"
+                url: "https://openshift-gitops-server-openshift-gitops.apps.yg46z7uk.eastus.aroapp.io"
                 token: "${ARGOCD_TOKEN}"
   - package: ./dynamic-plugins/dist/roadiehq-backstage-plugin-argo-cd
     disabled: false
@@ -184,7 +184,7 @@ plugins:
                   if:
                     allOf:
                       - isArgocdAvailable
-  - package: ./dynamic-plugins/dist/janus-idp-backstage-plugin-argocd
+  - package: ./dynamic-plugins/dist/backstage-community-plugin-redhat-argocd
     disabled: false
     pluginConfig:
       dynamicPlugins:
@@ -433,5 +433,5 @@ plugins:
                     width: 1500
                     height: 800
 
-  - package: ./dynamic-plugins/dist/janus-idp-backstage-plugin-catalog-backend-module-scaffolder-relation-processor-dynamic
-    disabled: false
+  - package: ./dynamic-plugins/dist/backstage-community-plugin-catalog-backend-module-scaffolder-relation-processor-dynamic
+    disabled: true

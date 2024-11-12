@@ -25,7 +25,7 @@ variable "github-token" {
 
 variable "github-client-id" {
   type    = string
-  default = "Iv23livtfLgffsRQiXmV"
+  default = "Iv23li3IorfilpLSHAan"
 }
 
 variable "argocd-token" {
@@ -51,4 +51,9 @@ variable "azure-token" {
 variable "azure-org" {
   type    = string
   default = "pminkows"
+}
+
+variable "domain" {
+  type    = string
+  default = "piomin.eastus.aroapp.io"
 }

@@ -19,11 +19,12 @@ provider "kubectl" {
   config_context = var.cluster-context
 }
 
-resource "kubernetes_namespace" "backstage" {
-  metadata {
-    name = "backstage"
-  }
-}
+# !!! uncomment if you didn't create the backstage namespace
+# resource "kubernetes_namespace" "backstage" {
+#   metadata {
+#     name = "backstage"
+#   }
+# }
 
 resource "kubernetes_config_map" "dynamic-plugins-rhdh" {
   metadata {
@@ -33,7 +34,7 @@ resource "kubernetes_config_map" "dynamic-plugins-rhdh" {
   data = {
     "dynamic-plugins.yaml" = file("dynamic-plugins.yaml")
   }
-  depends_on = [kubernetes_namespace.backstage]
+  # depends_on = [kubernetes_namespace.backstage]
 }
 
 resource "kubernetes_config_map" "app-config-rhdh" {
@@ -44,7 +45,7 @@ resource "kubernetes_config_map" "app-config-rhdh" {
   data = {
     "app-config-rhdh.yaml" = file("app-config.yaml")
   }
-  depends_on = [kubernetes_namespace.backstage]
+  # depends_on = [kubernetes_namespace.backstage]
 }
 
 # resource "kubernetes_secret" "default-token" {
@@ -74,13 +75,14 @@ resource "kubernetes_secret" "app-secrets-rhdh" {
     OPENSHIFT_TOKEN = var.openshift-token
     AZURE_TOKEN = var.azure-token
     AZURE_ORG = var.azure-org
+    DOMAIN = var.domain
   }
 }
 
 resource "kubectl_manifest" "basic" {
-  depends_on = [kubernetes_namespace.backstage, kubernetes_config_map.dynamic-plugins-rhdh]
+  depends_on = [kubernetes_config_map.dynamic-plugins-rhdh]
   yaml_body = <<YAML
-apiVersion: rhdh.redhat.com/v1alpha1
+apiVersion: rhdh.redhat.com/v1alpha2
 kind: Backstage
 metadata:
   name: developer-hub
