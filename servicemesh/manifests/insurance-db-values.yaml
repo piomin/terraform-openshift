@@ -5,30 +5,21 @@ auth:
 
 fullnameOverride: insurance-db
 
+global:
+  compatibility:
+    openshift:
+      adaptSecurityContext: force
+
 #primary:
 #  podSecurityContext:
 #    fsGroup: null
 #    seccompProfile:
 #      type: RuntimeDefault
+#  securityContext:
+#    enabled: false
 #  containerSecurityContext:
-#    runAsUser: null
-#    allowPrivilegeEscalation: false
-#    runAsNonRoot: true
-#    seccompProfile:
-#      type: RuntimeDefault
+#    enabled: false
+#volumePermissions:
+#  enabled: false
 #shmVolume:
 #  enabled: false
-
-primary:
-  podSecurityContext:
-    fsGroup: null
-    seccompProfile:
-      type: RuntimeDefault
-  securityContext:
-    enabled: false
-  containerSecurityContext:
-    enabled: false
-volumePermissions:
-  enabled: false
-shmVolume:
-  enabled: false
