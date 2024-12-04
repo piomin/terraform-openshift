@@ -1,8 +1,8 @@
-resource "kubernetes_namespace" "demo-ci" {
-  metadata {
-    name = "demo-ci"
-  }
-}
+# resource "kubernetes_namespace" "demo-ci" {
+#   metadata {
+#     name = "demo-ci"
+#   }
+# }
 
 #resource "time_sleep" "wait_120_seconds" {
 #  depends_on = [kubernetes_manifest.pipelines-subscription]

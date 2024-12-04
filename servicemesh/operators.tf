@@ -53,3 +53,21 @@ resource "kubernetes_manifest" "kiali" {
     }
   }
 }
+
+resource "kubernetes_manifest" "ossm" {
+  manifest = {
+    "apiVersion" = "operators.coreos.com/v1alpha1"
+    "kind"       = "Subscription"
+    "metadata"   = {
+      "name"      = "servicemeshoperator"
+      "namespace" = "openshift-operators"
+    }
+    "spec" = {
+      "channel"             = "stable"
+      "installPlanApproval" = "Automatic"
+      "name"                = "servicemeshoperator"
+      "source"              = "redhat-operators"
+      "sourceNamespace"     = "openshift-marketplace"
+    }
+  }
+}

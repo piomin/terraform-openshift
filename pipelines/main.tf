@@ -49,6 +49,44 @@ resource "kubernetes_manifest" "pipelines-subscription" {
   }
 }
 
+resource "kubernetes_namespace" "acs" {
+  metadata {
+    name = "rhacs-operator"
+  }
+}
+
+resource "kubernetes_manifest" "acs-operator-group" {
+  manifest = {
+    "apiVersion" = "operators.coreos.com/v1"
+    "kind"       = "OperatorGroup"
+    "metadata"   = {
+      "name"      = "rhacs-operator"
+      "namespace" = "rhacs-operator"
+    }
+    "spec" = {
+      "upgradeStrategy" = "Default"
+    }
+  }
+}
+
+resource "kubernetes_manifest" "acs-subscription" {
+  manifest = {
+    "apiVersion" = "operators.coreos.com/v1alpha1"
+    "kind"       = "Subscription"
+    "metadata" = {
+      "name"      = "rhacs-operator"
+      "namespace" = "rhacs-operator"
+    }
+    "spec" = {
+      "channel"             = "stable"
+      "installPlanApproval" = "Automatic"
+      "name"                = "rhacs-operator"
+      "source"              = "redhat-operators"
+      "sourceNamespace"     = "openshift-marketplace"
+    }
+  }
+}
+
 #resource "kubernetes_namespace" "openshift-cluster-csi-drivers" {
 #  metadata {
 #    name = "openshift-cluster-csi-drivers"
@@ -65,24 +103,6 @@ resource "kubernetes_manifest" "pipelines-subscription" {
 #    }
 #    "spec" = {
 #      "upgradeStrategy" = "Default"
-#    }
-#  }
-#}
-#
-#resource "kubernetes_manifest" "pipelines-subscription" {
-#  manifest = {
-#    "apiVersion" = "operators.coreos.com/v1alpha1"
-#    "kind"       = "Subscription"
-#    "metadata" = {
-#      "name"      = "secrets-store-csi-driver-operator"
-#      "namespace" = "openshift-cluster-csi-drivers"
-#    }
-#    "spec" = {
-#      "channel"             = "preview"
-#      "installPlanApproval" = "Automatic"
-#      "name"                = "secrets-store-csi-driver-operator"
-#      "source"              = "redhat-operators"
-#      "sourceNamespace"     = "openshift-marketplace"
 #    }
 #  }
 #}

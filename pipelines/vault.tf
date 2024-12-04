@@ -1,62 +1,62 @@
-resource "kubernetes_namespace" "vault" {
-  metadata {
-    name = "vault"
-  }
-}
-
-resource "kubernetes_service_account" "vault-sa" {
-  depends_on = [kubernetes_namespace.vault]
-  metadata {
-    name      = "vault"
-    namespace = "vault"
-  }
-}
-
-resource "kubernetes_secret_v1" "vault-secret" {
-  depends_on = [kubernetes_namespace.vault]
-  metadata {
-    name = "vault-token"
-    namespace = "vault"
-    annotations = {
-      "kubernetes.io/service-account.name" = "vault"
-    }
-  }
-
-  type = "kubernetes.io/service-account-token"
-}
-
-resource "kubernetes_cluster_role_binding" "privileged" {
-  metadata {
-    name = "system:openshift:scc:privileged"
-  }
-  role_ref {
-    api_group = "rbac.authorization.k8s.io"
-    kind      = "ClusterRole"
-    name      = "system:openshift:scc:privileged"
-  }
-  subject {
-    kind      = "ServiceAccount"
-    name      = "secrets-store-csi-driver"
-    namespace = "k8s-secrets-store-csi"
-  }
-  subject {
-    kind      = "ServiceAccount"
-    name      = "vault-csi-provider"
-    namespace = "vault"
-  }
-}
-
-resource "helm_release" "vault" {
-  chart            = "hashicorp/vault"
-  name             = "vault"
-  namespace        = "vault"
-  repository       = "https://helm.releases.hashicorp.com"
-  version = "0.27.0"
-
-  values = [
-    file("vault/values.yaml")
-  ]
-}
+# resource "kubernetes_namespace" "vault" {
+#   metadata {
+#     name = "vault"
+#   }
+# }
+#
+# resource "kubernetes_service_account" "vault-sa" {
+#   depends_on = [kubernetes_namespace.vault]
+#   metadata {
+#     name      = "vault"
+#     namespace = "vault"
+#   }
+# }
+#
+# resource "kubernetes_secret_v1" "vault-secret" {
+#   depends_on = [kubernetes_namespace.vault]
+#   metadata {
+#     name = "vault-token"
+#     namespace = "vault"
+#     annotations = {
+#       "kubernetes.io/service-account.name" = "vault"
+#     }
+#   }
+#
+#   type = "kubernetes.io/service-account-token"
+# }
+#
+# resource "kubernetes_cluster_role_binding" "privileged" {
+#   metadata {
+#     name = "system:openshift:scc:privileged"
+#   }
+#   role_ref {
+#     api_group = "rbac.authorization.k8s.io"
+#     kind      = "ClusterRole"
+#     name      = "system:openshift:scc:privileged"
+#   }
+#   subject {
+#     kind      = "ServiceAccount"
+#     name      = "secrets-store-csi-driver"
+#     namespace = "k8s-secrets-store-csi"
+#   }
+#   subject {
+#     kind      = "ServiceAccount"
+#     name      = "vault-csi-provider"
+#     namespace = "vault"
+#   }
+# }
+#
+# resource "helm_release" "vault" {
+#   chart            = "hashicorp/vault"
+#   name             = "vault"
+#   namespace        = "vault"
+#   repository       = "https://helm.releases.hashicorp.com"
+#   version = "0.27.0"
+#
+#   values = [
+#     file("vault/values.yaml")
+#   ]
+# }
 
 #resource "time_sleep" "wait_120_seconds" {
 #  depends_on = [helm_release.vault]
