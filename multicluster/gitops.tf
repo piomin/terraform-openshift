@@ -1,8 +1,8 @@
-# resource "time_sleep" "wait_120_seconds_after_gitops" {
-#   depends_on = [kubernetes_manifest.gitops-subscription]
-#
-#   create_duration = "120s"
-# }
+resource "time_sleep" "wait_120_seconds_after_gitops" {
+  depends_on = [kubernetes_manifest.gitops-subscription]
+
+  create_duration = "120s"
+}
 
 resource "kubernetes_manifest" "cluster-admins-group" {
   manifest = {
@@ -33,7 +33,7 @@ resource "kubernetes_manifest" "app-owners" {
 }
 
 resource "kubernetes_cluster_role_binding" "cluster-admins-role-binding" {
-#   depends_on = [kubernetes_manifest.gitops-subscription]
+  depends_on = [kubernetes_manifest.gitops-subscription]
   metadata {
     name = "cluster-admins-role-binding"
   }
@@ -50,7 +50,7 @@ resource "kubernetes_cluster_role_binding" "cluster-admins-role-binding" {
 }
 
 resource "kubernetes_cluster_role_binding" "argocd-application-controller-crb" {
-#   depends_on = [kubernetes_manifest.gitops-subscription]
+  depends_on = [kubernetes_manifest.gitops-subscription]
   metadata {
     name = "argocd-application-controller-cluster-admin"
   }
@@ -67,8 +67,7 @@ resource "kubernetes_cluster_role_binding" "argocd-application-controller-crb" {
 }
 
 resource "helm_release" "argocd-apps" {
-  name = "argocd-apps"
-
+  name       = "argocd-apps"
   repository = "https://argoproj.github.io/argo-helm"
   chart      = "argocd-apps"
   namespace  = "openshift-gitops"
@@ -78,6 +77,5 @@ resource "helm_release" "argocd-apps" {
     file("argocd/apps.yaml")
   ]
 
-#   depends_on       = [time_sleep.wait_120_seconds_after_gitops]
-
+  depends_on       = [time_sleep.wait_120_seconds_after_gitops]
 }
