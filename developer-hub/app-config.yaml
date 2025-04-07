@@ -6,6 +6,8 @@ app:
 backend:
   baseUrl: https://backstage-developer-hub-backstage.apps.${DOMAIN}
 
+signInPage: github
+
 # (2)
 auth:
   environment: development
@@ -14,6 +16,10 @@ auth:
       development:
         clientId: ${GITHUB_CLIENT_ID}
         clientSecret: ${GITHUB_CLIENT_SECRET}
+        signIn:
+          resolvers:
+            - resolver: usernameMatchingUserEntityName
+              dangerouslyAllowSignInWithoutUserInCatalog: true
 
 # (3)
 proxy:
@@ -30,6 +36,14 @@ catalog:
   locations:
     - type: url
       target: https://github.com/piomin/backstage-templates/blob/master/templates.yaml
+      rules:
+        - allow: [Template, Location]
+    - type: url
+      target: https://github.com/redhat-developer/red-hat-developer-hub-software-templates/blob/main/templates.yaml
+      rules:
+        - allow: [Template, Location]
+    - type: url
+      target: https://github.com/redhat-ai-dev/ai-lab-template/blob/main/all.yaml
       rules:
         - allow: [Template, Location]
 
