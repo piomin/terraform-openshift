@@ -896,7 +896,7 @@ plugins:
                       - isDatadogAvailable
 
   - package: ./dynamic-plugins/dist/backstage-community-plugin-tekton
-    disabled: true
+    disabled: false
     pluginConfig:
       dynamicPlugins:
         frontend:
