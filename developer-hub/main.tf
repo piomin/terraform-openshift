@@ -82,7 +82,7 @@ resource "kubernetes_secret" "app-secrets-rhdh" {
 resource "kubectl_manifest" "basic" {
   depends_on = [kubernetes_config_map.dynamic-plugins-rhdh]
   yaml_body = <<YAML
-apiVersion: rhdh.redhat.com/v1alpha2
+apiVersion: rhdh.redhat.com/v1alpha3
 kind: Backstage
 metadata:
   name: developer-hub
