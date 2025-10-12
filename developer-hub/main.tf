@@ -99,7 +99,7 @@ spec:
         - name: app-secrets-rhdh
     extraFiles:
       mountPath: /opt/app-root/src
-    replicas: 1
+    replicas: 2
     route:
       enabled: true
   database:
