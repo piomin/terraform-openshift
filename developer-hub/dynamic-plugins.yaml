@@ -270,7 +270,7 @@ plugins:
                 url: "https://openshift-gitops-server-openshift-gitops.apps.${DOMAIN}"
                 token: "${ARGOCD_TOKEN}"
   - package: ./dynamic-plugins/dist/roadiehq-backstage-plugin-argo-cd
-    disabled: false
+    disabled: true
     pluginConfig:
       dynamicPlugins:
         frontend:
