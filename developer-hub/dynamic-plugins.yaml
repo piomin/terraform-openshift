@@ -42,7 +42,7 @@ plugins:
                     allOf:
                       - isGithubActionsAvailable
   - package:  ./dynamic-plugins/dist/backstage-community-plugin-github-issues
-    disabled: true
+    disabled: false
     pluginConfig:
       dynamicPlugins:
         frontend:
@@ -427,13 +427,13 @@ plugins:
 
   # Group: SonarQube
   - package: ./dynamic-plugins/dist/backstage-community-plugin-sonarqube-backend-dynamic
-    disabled: true
+    disabled: false
     pluginConfig:
       sonarqube:
         baseUrl: ${SONARQUBE_URL}
         apiKey: ${SONARQUBE_TOKEN}
   - package: ./dynamic-plugins/dist/backstage-community-plugin-sonarqube
-    disabled: true
+    disabled: false
     pluginConfig:
       dynamicPlugins:
         frontend:
@@ -1018,7 +1018,7 @@ plugins:
                       - isTektonCIAvailable
 
   - package: ./dynamic-plugins/dist/backstage-community-plugin-quay
-    disabled: true
+    disabled: false
     pluginConfig:
       dynamicPlugins:
         frontend:

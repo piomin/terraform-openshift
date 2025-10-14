@@ -35,15 +35,16 @@ resource "helm_release" "sealed-secrets" {
   namespace  = "sealed-secrets"
   repository = "https://bitnami-labs.github.io/sealed-secrets"
 
-  set {
-    name  = "serviceAccount.create"
-    value = false
-  }
-
-  set {
-    name  = "serviceAccount.name"
-    value = "sealed-secrets"
-  }
+  set = [
+    {
+      name  = "serviceAccount.create"
+      value = "false"
+    },
+    {
+      name  = "serviceAccount.name"
+      value = "sealed-secrets"
+    }
+  ]
 }
 
 resource "kubernetes_secret" "sealed-secrets-key" {
