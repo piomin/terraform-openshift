@@ -26,12 +26,12 @@ organization:
 
 signInPage: github
 
-permission:
-  enabled: true
-  rbac:
-    admin:
-      users:
-        - name: user:default/piomin
+#permission:
+#  enabled: true
+#  rbac:
+#    admin:
+#      users:
+#        - name: user:default/piomin
 
 # (2)
 auth:
@@ -57,6 +57,7 @@ proxy:
       target: 'https://quay.io'
       headers:
         X-Requested-With: 'XMLHttpRequest'
+        Authorization: 'Bearer ${QUAY_TOKEN}'
       changeOrigin: true
       secure: true
 
