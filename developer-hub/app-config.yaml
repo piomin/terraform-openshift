@@ -26,6 +26,13 @@ organization:
 
 signInPage: github
 
+permission:
+  enabled: true
+  rbac:
+    admin:
+      users:
+        - name: user:default/piomin
+
 # (2)
 auth:
   environment: development
@@ -46,6 +53,12 @@ proxy:
       target: ${SONARQUBE_URL}/api
       allowedMethods: ['GET', 'POST']
       auth: "${SONARQUBE_TOKEN}:"
+    /quay/api:
+      target: 'https://quay.io'
+      headers:
+        X-Requested-With: 'XMLHttpRequest'
+      changeOrigin: true
+      secure: true
 
 # (4)
 catalog:
@@ -78,6 +91,9 @@ integrations:
 sonarqube:
   baseUrl: https://sonarcloud.io
   apiKey: ${SONARQUBE_TOKEN}
+
+quay:
+  uiUrl: 'https://quay.io'
 
 azureDevOps:
   host: dev.azure.com

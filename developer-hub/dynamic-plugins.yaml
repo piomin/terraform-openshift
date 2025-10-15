@@ -852,7 +852,7 @@ plugins:
     disabled: false
 
   - package: ./dynamic-plugins/dist/backstage-community-plugin-rbac
-    disabled: true
+    disabled: false
     pluginConfig:
       dynamicPlugins:
         frontend:
