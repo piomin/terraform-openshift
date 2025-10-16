@@ -100,4 +100,25 @@ azureDevOps:
   host: dev.azure.com
   organization: ${AZURE_ORG}
 
+kubernetes:
+  customResources:
+    - group: 'route.openshift.io'
+      apiVersion: 'v1'
+      plural: 'routes'
+    - group: 'tekton.dev'
+      apiVersion: 'v1beta1'
+      plural: 'pipelines'
+    - group: 'tekton.dev'
+      apiVersion: 'v1beta1'
+      plural: 'pipelineruns'
+    - group: 'tekton.dev'
+      apiVersion: 'v1beta1'
+      plural: 'taskruns'
+    - group: 'tekton.dev'
+      apiVersion: 'v1beta1'
+      plural: 'tasks'
+    - group: 'org.eclipse.che'
+      apiVersion: 'v2'
+      plural: 'checlusters'
+
 dangerouslyAllowSignInWithoutUserInCatalog: true
