@@ -48,6 +48,7 @@ YAML
 locals {
   my_manifest = yamldecode(file("manifests/task.yaml"))
   acs = yamldecode(file("manifests/acs.yaml"))
+  rhda = yamldecode(file("manifests/rhda.yaml"))
 }
 
 resource "kubernetes_manifest" "task-sonarqube-scanner" {
@@ -56,6 +57,10 @@ resource "kubernetes_manifest" "task-sonarqube-scanner" {
 
 resource "kubernetes_manifest" "task-acs" {
   manifest = local.acs
+}
+
+resource "kubernetes_manifest" "task-rhda" {
+  manifest = local.rhda
 }
 
 resource "kubernetes_config_map" "maven-settings" {

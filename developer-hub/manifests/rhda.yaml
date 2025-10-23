@@ -1,0 +1,184 @@
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  annotations:
+    openshift.io/installed-from: Tektonhub
+    tekton.dev/categories: Security
+    tekton.dev/deprecated: 'true'
+    tekton.dev/displayName: Red Hat Dependency Analytics
+    tekton.dev/pipelines.minVersion: 0.37.5
+    tekton.dev/platforms: linux/amd64
+    tekton.dev/tags: 'Security, Vulnenrability, CVE'
+  resourceVersion: '71944492'
+  name: redhat-dependency-analytics
+  uid: 1d76eabc-98bb-417f-a159-fe435ceb9e0d
+  creationTimestamp: '2025-10-23T12:22:32Z'
+  generation: 2
+  managedFields:
+    - apiVersion: tekton.dev/v1beta1
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:metadata':
+          'f:annotations':
+            .: {}
+            'f:openshift.io/installed-from': {}
+            'f:tekton.dev/categories': {}
+            'f:tekton.dev/deprecated': {}
+            'f:tekton.dev/displayName': {}
+            'f:tekton.dev/pipelines.minVersion': {}
+            'f:tekton.dev/platforms': {}
+            'f:tekton.dev/tags': {}
+          'f:labels':
+            .: {}
+            'f:app.kubernetes.io/version': {}
+        'f:spec':
+          .: {}
+          'f:description': {}
+          'f:params': {}
+          'f:sidecars': {}
+          'f:volumes': {}
+          'f:workspaces': {}
+      manager: Mozilla
+      operation: Update
+      time: '2025-10-23T12:22:32Z'
+    - apiVersion: tekton.dev/v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        'f:spec':
+          'f:steps': {}
+      manager: Mozilla
+      operation: Update
+      time: '2025-10-23T13:17:07Z'
+  namespace: demo
+  labels:
+    app.kubernetes.io/version: '0.2'
+spec:
+  description: The Red Hat Dependency Analytics task is an interface between Tekton and Red Hat Dependency Analytics (RHDA) platform. It provides vulnerability and compliance analysis for application dependencies in your software supply chain.
+  params:
+    - description: Path to target manifest file within workspace.
+      name: manifest-file-path
+      type: string
+    - default: redhat-dependency-analytics-report.json
+      description: 'Path to file within workspace, where the analysis report is saved.'
+      name: output-file-path
+      type: string
+    - default: 'quay.io/ecosystem-appeng/exhort-javascript-api:0.1.1-ea.26'
+      description: Image where Exhort Javascript API and required dependencies are installed.
+      name: rhda-image
+      type: string
+    - default: 'python:3.11'
+      description: 'Image with installed Python interpreter and associated tools (such as pip, pip3, etc.).'
+      name: python-image
+      type: string
+    - default: 'false'
+      description: Uses the Minimal version selection (MVS) algorithm to select a set of module versions to use when building Go packages.
+      name: use-go-mvs-logic
+      type: string
+  sidecars:
+    - computeResources: {}
+      image: $(params.python-image)
+      name: python
+      script: |
+        #!/bin/sh
+
+        # Function to handle errors
+        handle_error() {
+            cp error.log /shared/error.log
+            exit 1
+        }
+
+        # Wait for a Step to supply the sidecar with requirements file.
+        while [ ! -f /shared/requirements.txt ] ; do
+          if [ -f /shared/notPython ]; then
+            exit 0
+          fi
+          sleep 1
+        done
+
+        python -m venv /tmp 2>error.log || handle_error
+
+        /tmp/bin/pip3 install -r /shared/requirements.txt 2>error.log || handle_error
+
+        /tmp/bin/pip3 freeze --all > /shared/pip_freeze.txt 2>error.log || handle_error
+
+        SHOW_LIST=$(awk -F '==' '{print $1}' < /shared/pip_freeze.txt)
+        /tmp/bin/pip3 show $(echo "$SHOW_LIST") > /shared/pip_show.txt 2>error.log || handle_error
+
+        touch /shared/pythonComplete
+      volumeMounts:
+        - mountPath: /shared
+          name: shared-data
+  steps:
+    - computeResources: {}
+      env:
+        - name: RHDA_SOURCE
+          value: tekton
+      image: $(params.rhda-image)
+      name: redhat-dependency-analytics
+      script: |
+        #!/bin/sh
+
+        # Function to handle errors
+        handle_error() {
+            # Save exit code into output file.
+            jq -n {} | jq --arg exit_code "1" '. + {exit_code: $exit_code}' > $OUTPUT_FILE_PATH
+
+            # Print stderr message to console
+            error_message=$(sed -n '/^ERROR:/p' error.log)
+            printf "\n[ERROR] Failed to install dependencies from requirements.txt.\n$error_message"
+
+            exit 1
+        }
+
+        # Set the timeout duration in seconds
+        timeout_duration=60
+        elapsed_time=0
+
+        # get task parameter values
+        MANIFEST_FILE_PATH="$(params.manifest-file-path)"
+        OUTPUT_FILE_PATH="$(params.output-file-path)"
+
+        # install dependencies for requirements.txt file
+        MANIFEST_FILE_BASENAME=$(basename "$MANIFEST_FILE_PATH")
+        if [ "$MANIFEST_FILE_BASENAME" = "requirements.txt" ]; then
+          cp $MANIFEST_FILE_PATH /shared/requirements.txt
+
+          # Wait for sidecar to provide dependency data.
+          while [ ! -f /shared/pip_show.txt ] || [ ! -f /shared/pip_freeze.txt ] || [ ! -f /shared/pythonComplete ] ; do
+
+            # Check if error occured
+            if [ -f /shared/error.log ]; then
+              cp /shared/error.log .
+              handle_error
+            fi
+
+            # Check if the timeout is reached
+            if [ "$elapsed_time" -ge "$timeout_duration" ]; then
+                echo "Timeout reached." > error.log
+                handle_error
+            fi
+
+            sleep 1
+            ((elapsed_time++))
+          done
+
+          export EXHORT_PIP_FREEZE=$(cat /shared/pip_freeze.txt | base64 -w 0)
+          export EXHORT_PIP_SHOW=$(cat /shared/pip_show.txt | base64 -w 0)
+        else
+          touch /shared/notPython
+        fi
+
+        export EXHORT_GO_MVS_LOGIC_ENABLED=$(echo "$(params.use-go-mvs-logic)")
+
+        # execute RHDA
+        sh /rhda.sh "$MANIFEST_FILE_PATH" "$OUTPUT_FILE_PATH"
+      volumeMounts:
+        - mountPath: /shared
+          name: shared-data
+      workingDir: $(workspaces.output.path)
+  volumes:
+    - emptyDir: {}
+      name: shared-data
+  workspaces:
+    - description: Volume backing this workspace is used for input/output of the task.
+      name: output
