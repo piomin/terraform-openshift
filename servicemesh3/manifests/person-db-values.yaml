@@ -1,0 +1,25 @@
+auth:
+  username: person-db
+  database: person-db
+  existingSecret: person-db
+
+fullnameOverride: person-db
+
+global:
+  compatibility:
+    openshift:
+      adaptSecurityContext: force
+
+#primary:
+#  podSecurityContext:
+#    fsGroup: null
+#    seccompProfile:
+#      type: RuntimeDefault
+#  securityContext:
+#    enabled: false
+#  containerSecurityContext:
+#    enabled: false
+#volumePermissions:
+#  enabled: false
+#shmVolume:
+#  enabled: false

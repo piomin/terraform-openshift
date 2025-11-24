@@ -1,0 +1,25 @@
+auth:
+  username: insurance-db
+  database: insurance-db
+  existingSecret: insurance-db
+
+fullnameOverride: insurance-db
+
+global:
+  compatibility:
+    openshift:
+      adaptSecurityContext: force
+
+#primary:
+#  podSecurityContext:
+#    fsGroup: null
+#    seccompProfile:
+#      type: RuntimeDefault
+#  securityContext:
+#    enabled: false
+#  containerSecurityContext:
+#    enabled: false
+#volumePermissions:
+#  enabled: false
+#shmVolume:
+#  enabled: false
