@@ -1,5 +1,5 @@
 applications:
-  - name: local-cluster-config
+  local-cluster-config:
     namespace: openshift-gitops
     project: default
     source:
@@ -15,7 +15,7 @@ applications:
       automated:
         prune: true
         selfHeal: true
-  - name: cicd-config
+  cicd-config:
     namespace: openshift-gitops
     project: default
     source:
