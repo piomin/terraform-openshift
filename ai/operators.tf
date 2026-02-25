@@ -1,4 +1,11 @@
+resource "kubernetes_namespace_v1" "openshift-nfd-namespace" {
+  metadata {
+    name = "openshift-nfd"
+  }
+}
+
 resource "kubernetes_manifest" "nfd-group" {
+  depends_on = [kubernetes_namespace_v1.openshift-nfd-namespace]
   manifest = {
     "apiVersion" = "operators.coreos.com/v1"
     "kind"       = "OperatorGroup"
@@ -14,6 +21,7 @@ resource "kubernetes_manifest" "nfd-group" {
 }
 
 resource "kubernetes_manifest" "nfd-operator" {
+  depends_on = [kubernetes_namespace_v1.openshift-nfd-namespace]
   manifest = {
     "apiVersion" = "operators.coreos.com/v1alpha1"
     "kind"       = "Subscription"
@@ -27,7 +35,7 @@ resource "kubernetes_manifest" "nfd-operator" {
       "name"                = "nfd"
       "source"              = "redhat-operators"
       "sourceNamespace"     = "openshift-marketplace"
-      "startingCSV"         = "nfd.4.18.0-202505200035"
+      "startingCSV"         = "nfd.4.18.0-202601302238"
     }
   }
 }
@@ -48,7 +56,7 @@ metadata:
   namespace: openshift-nfd
 spec:
   workerConfig:
-    configData:
+    configData: |
       core:
         sleepInterval: 60s
       sources:
@@ -63,46 +71,18 @@ spec:
     imagePullPolicy: IfNotPresent
     servicePort: 12000
   customConfig:
-    configData: {}
+    configData: |
 YAML
 }
 
-# resource "kubernetes_manifest" "nfd-instance" {
-#   depends_on = [time_sleep.wait-150-seconds-1]
-#   manifest = {
-#     "apiVersion" = "nfd.openshift.io/v1"
-#     "kind"       = "NodeFeatureDiscovery"
-#     "metadata"   = {
-#       "name"      = "nfd-instance"
-#       "namespace" = "openshift-nfd"
-#     }
-#     "spec" = {
-#       "workerConfig" = {
-#         "configData" = <<-EOT
-#           core:
-#             sleepInterval: 60s
-#           sources:
-#             pci:
-#               deviceClassWhitelist:
-#                 - "0200"
-#                 - "03"
-#                 - "12"
-#               deviceLabelFields:
-#                 - "vendor"
-#         EOT
-#       }
-#       "operand" = {
-#         "imagePullPolicy" = "IfNotPresent"
-#         "servicePort"     = 12000
-#       }
-#       "customConfig" = {
-#         "configData" = ""
-#       }
-#     }
-#   }
-# }
+resource "kubernetes_namespace_v1" "nvidia-gpu-operator" {
+  metadata {
+    name = "nvidia-gpu-operator"
+  }
+}
 
 resource "kubernetes_manifest" "nvidia-gpu-group" {
+  depends_on = [kubernetes_namespace_v1.nvidia-gpu-operator]
   manifest = {
     "apiVersion" = "operators.coreos.com/v1"
     "kind"       = "OperatorGroup"
@@ -118,6 +98,7 @@ resource "kubernetes_manifest" "nvidia-gpu-group" {
 }
 
 resource "kubernetes_manifest" "nvidia-gpu-operator" {
+  depends_on = [kubernetes_namespace_v1.nvidia-gpu-operator]
   manifest = {
     "apiVersion" = "operators.coreos.com/v1alpha1"
     "kind"       = "Subscription"
@@ -131,7 +112,7 @@ resource "kubernetes_manifest" "nvidia-gpu-operator" {
       "name"                = "gpu-operator-certified"
       "source"              = "certified-operators"
       "sourceNamespace"     = "openshift-marketplace"
-      "startingCSV"         = "gpu-operator-certified.v25.3.1"
+      "startingCSV"         = "gpu-operator-certified.v25.10.1"
     }
   }
 }
