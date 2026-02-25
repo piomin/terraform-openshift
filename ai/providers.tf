@@ -6,6 +6,10 @@ terraform {
       source  = "gavinbunney/kubectl"
       version = ">= 1.13.0"
     }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "2.38.0"
+    }
   }
 }
 

@@ -1,4 +1,4 @@
-resource "kubernetes_namespace" "rhai-apps-namespace" {
+resource "kubernetes_namespace_v1" "rhai-apps-namespace" {
   metadata {
     name = "rhai"
   }
@@ -11,7 +11,7 @@ resource "time_sleep" "wait_150_seconds" {
 }
 
 resource "kubectl_manifest" "data-science-cluster" {
-  depends_on = [time_sleep.wait_150_seconds, kubernetes_namespace.rhai-apps-namespace]
+  depends_on = [time_sleep.wait_150_seconds, kubernetes_namespace_v1.rhai-apps-namespace]
   yaml_body = <<YAML
 apiVersion: datasciencecluster.opendatahub.io/v1
 kind: DataScienceCluster
