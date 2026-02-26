@@ -10,24 +10,24 @@ resource "kubernetes_namespace_v1" "namespace-ai" {
   }
 }
 
-resource "kubectl_manifest" "rhaiis-granite" {
+resource "kubectl_manifest" "rhaiis-gpt-oss" {
   depends_on = [time_sleep.wait_150_seconds, kubectl_manifest.nvidia-gpu-cluster-policy, kubernetes_namespace_v1.namespace-ai]
   yaml_body = <<YAML
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: ai
-  name: granite-rhaiis
+  name: gpt-oss-rhaiis
   annotations: {}
 spec:
   selector:
     matchLabels:
-      app: granite-rhaiis
+      app: gpt-oss-rhaiis
   replicas: 1
   template:
     metadata:
       labels:
-        app: granite-rhaiis
+        app: gpt-oss-rhaiis
     spec:
       containers:
         - resources:
@@ -36,21 +36,46 @@ spec:
               memory: 30Gi
               nvidia.com/gpu: '1'
             requests:
-              cpu: 100m
-              memory: 20Gi
+              cpu: '1'
+              memory: 10Gi
               nvidia.com/gpu: '1'
           name: vllm
-          image: registry.redhat.io/rhaiis/vllm-cuda-rhel9:latest
-          args:
-            - vllm serve ibm-granite/granite-3.3-2b-instruct --tensor-parallel-size 1 --max-model-len 131072
+          image: registry.redhat.io/rhaiis/vllm-cuda-rhel9:3.2.2
           command:
-            - /bin/bash
-            - -c
+            - python
+            - '-m'
+            - vllm.entrypoints.openai.api_server
+          args:
+            - '--port=8000'
+            - '--model=RedHatAI/gpt-oss-20b'
+            - '--served-model-name=gpt-oss'
+            - '--tensor-parallel-size=1'
+            - '--enforce-eager'
           ports:
             - containerPort: 8000
               protocol: TCP
           env:
             - name: HF_HUB_OFFLINE
               value: '0'
+            - name: HUGGING_FACE_HUB_TOKEN
+              value: TOKEN_TO_ADD
+YAML
+}
+
+resource "kubectl_manifest" "rhaiis-granite" {
+  depends_on = [time_sleep.wait_150_seconds, kubectl_manifest.nvidia-gpu-cluster-policy, kubernetes_namespace_v1.namespace-ai]
+  yaml_body = <<YAML
+apiVersion: v1
+kind: Service
+metadata:
+  name: gpt-oss-rhaiis
+  namespace: ai
+spec:
+  selector:
+    app: gpt-oss-rhaiis
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
 YAML
 }
