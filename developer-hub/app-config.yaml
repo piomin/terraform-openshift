@@ -26,13 +26,6 @@ organization:
 
 signInPage: github
 
-#permission:
-#  enabled: true
-#  rbac:
-#    admin:
-#      users:
-#        - name: user:default/piomin
-
 # (2)
 auth:
   environment: development
@@ -84,10 +77,10 @@ integrations:
   github:
     - host: github.com
       token: ${GITHUB_TOKEN}
-  azure:
-    - host: dev.azure.com
-      credentials:
-        - personalAccessToken: ${AZURE_TOKEN}
+#  azure:
+#    - host: dev.azure.com
+#      credentials:
+#        - personalAccessToken: ${AZURE_TOKEN}
 
 sonarqube:
   baseUrl: https://sonarcloud.io
@@ -96,9 +89,9 @@ sonarqube:
 quay:
   uiUrl: 'https://quay.io'
 
-azureDevOps:
-  host: dev.azure.com
-  organization: ${AZURE_ORG}
+#azureDevOps:
+#  host: dev.azure.com
+#  organization: ${AZURE_ORG}
 
 kubernetes:
   customResources:

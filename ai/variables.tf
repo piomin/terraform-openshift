@@ -7,3 +7,8 @@ variable "kubeconfig" {
   type    = string
   default = "~/.kube/config"
 }
+
+variable "hf-token" {
+  type    = string
+  default = ""
+}

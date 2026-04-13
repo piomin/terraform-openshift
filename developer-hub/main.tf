@@ -19,7 +19,7 @@ provider "kubectl" {
   config_context = var.cluster-context
 }
 
-# !!! uncomment if you didn't create the backstage namespace
+# !!! (un)comment if you (didn't) create the backstage namespace
 # resource "kubernetes_namespace" "backstage" {
 #   metadata {
 #     name = "backstage"

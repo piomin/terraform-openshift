@@ -1,7 +1,7 @@
 #! /bin/bash
 
 terraform apply -auto-approve \
-  -var cluster-context=default/api-z4g1r69s-eastus-aroapp-io:6443/kube:admin \
+  -var cluster-context=$(kubectx -c) \
   -var sonar-token=${SONARQUBE_TOKEN} \
   -var github-token=${GITHUB_TOKEN} \
   -var argocd-token=${ARGOCD_TOKEN} \
