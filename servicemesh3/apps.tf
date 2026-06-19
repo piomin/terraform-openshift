@@ -1,4 +1,14 @@
+resource "kubernetes_namespace" "mesh" {
+  metadata {
+    name = "mesh"
+    labels = {
+      istio-injection = "enabled"
+    }
+  }
+}
+
 resource "kubernetes_secret" "person-db-secret" {
+  depends_on = [kubernetes_namespace.mesh]
   metadata {
     name      = "person-db"
     namespace = "mesh"
@@ -12,6 +22,7 @@ resource "kubernetes_secret" "person-db-secret" {
 }
 
 resource "kubernetes_secret" "insurance-db-secret" {
+  depends_on = [kubernetes_namespace.mesh]
   metadata {
     name      = "insurance-db"
     namespace = "mesh"
@@ -25,6 +36,7 @@ resource "kubernetes_secret" "insurance-db-secret" {
 }
 
 resource "helm_release" "person-db" {
+  depends_on = [kubernetes_namespace.mesh]
   chart            = "postgresql"
   name             = "person-db"
   namespace        = "mesh"
@@ -36,6 +48,7 @@ resource "helm_release" "person-db" {
 }
 
 resource "helm_release" "insurance-db" {
+  depends_on = [kubernetes_namespace.mesh]
   chart            = "postgresql"
   name             = "insurance-db"
   namespace        = "mesh"
@@ -74,7 +87,7 @@ resource "kubernetes_deployment" "quarkus-insurance-app" {
       spec {
         container {
           name = "quarkus-insurance-app"
-          image = "piomin/quarkus-insurance-app:v1"
+          image = "quay.io/pminkows/quarkus-insurance-app:v1"
           port {
             container_port = 8080
           }
@@ -91,7 +104,7 @@ resource "kubernetes_deployment" "quarkus-insurance-app" {
             name = "POSTGRES_PASSWORD"
             value_from {
               secret_key_ref {
-                key = "password"
+                key = "database-password"
                 name = "insurance-db"
               }
             }
@@ -159,7 +172,7 @@ resource "kubernetes_deployment" "quarkus-person-app-v1" {
       spec {
         container {
           name = "quarkus-person-app"
-          image = "piomin/quarkus-person-app:v1"
+          image = "quay.io/pminkows/quarkus-person-app:v1"
           port {
             container_port = 8080
           }
@@ -176,7 +189,7 @@ resource "kubernetes_deployment" "quarkus-person-app-v1" {
             name = "POSTGRES_PASSWORD"
             value_from {
               secret_key_ref {
-                key = "password"
+                key = "database-password"
                 name = "person-db"
               }
             }
@@ -224,7 +237,7 @@ resource "kubernetes_deployment" "quarkus-person-app-v2" {
       spec {
         container {
           name = "quarkus-person-app"
-          image = "piomin/quarkus-person-app:v2"
+          image = "quay.io/pminkows/quarkus-person-app:v2"
           port {
             container_port = 8080
           }
@@ -241,7 +254,7 @@ resource "kubernetes_deployment" "quarkus-person-app-v2" {
             name = "POSTGRES_PASSWORD"
             value_from {
               secret_key_ref {
-                key = "password"
+                key = "database-password"
                 name = "person-db"
               }
             }
