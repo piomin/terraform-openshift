@@ -10,24 +10,24 @@ resource "kubernetes_namespace_v1" "namespace-ai" {
   }
 }
 
-resource "kubectl_manifest" "rhaiis-gpt-oss" {
+resource "kubectl_manifest" "rhaiis-qwen3-coder" {
   depends_on = [time_sleep.wait_150_seconds, kubectl_manifest.nvidia-gpu-cluster-policy, kubernetes_namespace_v1.namespace-ai]
   yaml_body = <<YAML
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: ai
-  name: gpt-oss-rhaiis
+  name: qwen3-coder
   annotations: {}
 spec:
   selector:
     matchLabels:
-      app: gpt-oss-rhaiis
+      app: qwen3-coder
   replicas: 1
   template:
     metadata:
       labels:
-        app: gpt-oss-rhaiis
+        app: qwen3-coder
     spec:
       containers:
         - resources:
@@ -40,16 +40,17 @@ spec:
               memory: 10Gi
               nvidia.com/gpu: '1'
           name: vllm
-          image: registry.redhat.io/rhaiis/vllm-cuda-rhel9:3.2.2
+          image: registry.redhat.io/rhaiis/vllm-cuda-rhel9:3.4.4
           command:
             - python
             - '-m'
             - vllm.entrypoints.openai.api_server
           args:
             - '--port=8000'
-            - '--model=RedHatAI/gpt-oss-20b'
-            - '--served-model-name=gpt-oss'
-            - '--tensor-parallel-size=1'
+            - '--model=RedHatAI/Qwen3-Coder-Next-NVFP4'
+            - '--served-model-name=qwen3_coder'
+            - '--tensor-parallel-size=2'
+            - '--tool-call-parser=qwen3_coder'
             - '--enforce-eager'
           ports:
             - containerPort: 8000
@@ -58,21 +59,21 @@ spec:
             - name: HF_HUB_OFFLINE
               value: '0'
             - name: HUGGING_FACE_HUB_TOKEN
-              value: TOKEN_TO_ADD
+              value: <TOKEN>
 YAML
 }
 
-resource "kubectl_manifest" "rhaiis-granite" {
+resource "kubectl_manifest" "rhaiis-qwen3-coder" {
   depends_on = [time_sleep.wait_150_seconds, kubectl_manifest.nvidia-gpu-cluster-policy, kubernetes_namespace_v1.namespace-ai]
   yaml_body = <<YAML
 apiVersion: v1
 kind: Service
 metadata:
-  name: gpt-oss-rhaiis
+  name: qwen3-coder
   namespace: ai
 spec:
   selector:
-    app: gpt-oss-rhaiis
+    app: qwen3-coder
   ports:
     - protocol: TCP
       port: 8000
