@@ -1,0 +1,36 @@
+- result: CONDITIONAL
+  roleEntityRef: role:default/team-a
+  pluginId: catalog
+  resourceType: catalog-entity
+  permissionMapping:
+    - read
+  conditions:
+    anyOf:
+      - rule: IS_ENTITY_OWNER
+        resourceType: catalog-entity
+        params:
+          claims:
+            - group:default/team-a
+      - rule: IS_ENTITY_KIND
+        resourceType: catalog-entity
+        params:
+          kinds:
+            - Group
+- result: CONDITIONAL
+  roleEntityRef: role:default/team-b
+  pluginId: catalog
+  resourceType: catalog-entity
+  permissionMapping:
+    - read
+  conditions:
+    anyOf:
+      - rule: IS_ENTITY_OWNER
+        resourceType: catalog-entity
+        params:
+          claims:
+            - group:default/team-b
+      - rule: IS_ENTITY_KIND
+        resourceType: catalog-entity
+        params:
+          kinds:
+            - Group

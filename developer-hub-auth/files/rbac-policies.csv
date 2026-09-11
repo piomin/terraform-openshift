@@ -1,0 +1,50 @@
+
+p, role:default/admin, catalog-entity, read, allow
+p, role:default/admin, policy-entity, read, allow
+p, role:default/admin, policy-entity, create, allow
+p, role:default/admin, policy-entity, update, allow
+p, role:default/admin, policy-entity, delete, allow
+g, user:default/admin, role:default/admin
+
+# =========================================================
+# Base role - all users
+# =========================================================
+
+p, role:default/rhdh-users, scaffolder.task.create, create, allow
+p, role:default/rhdh-users, scaffolder.template.parameter.read, read, allow
+p, role:default/rhdh-users, scaffolder.template.step.read, read, allow
+
+g, group:default/team-a, role:default/rhdh-users
+g, group:default/team-b, role:default/rhdh-users
+g, group:default/team-c, role:default/rhdh-users
+
+
+# =========================================================
+# Team A - additional role
+# =========================================================
+
+p, role:default/team-a, scaffolder.task.create, create, allow
+p, role:default/team-a, scaffolder.template.parameter.read, read, allow
+p, role:default/team-a, scaffolder.template.step.read, read, allow
+
+g, group:default/team-a, role:default/team-a
+
+# =========================================================
+# Team B - additional role
+# =========================================================
+
+p, role:default/team-b, scaffolder.task.create, create, allow
+p, role:default/team-b, scaffolder.template.parameter.read, read, allow
+p, role:default/team-b, scaffolder.template.step.read, read, allow
+
+g, group:default/team-b, role:default/team-b
+
+# =========================================================
+# Team B - additional role
+# =========================================================
+
+p, role:default/team-c, scaffolder.task.create, create, allow
+p, role:default/team-c, scaffolder.template.parameter.read, read, allow
+p, role:default/team-c, scaffolder.template.step.read, read, allow
+
+g, group:default/team-c, role:default/team-c

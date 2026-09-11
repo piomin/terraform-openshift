@@ -1,0 +1,55 @@
+auth:
+  environment: production
+
+  session:
+    secret: ${SESSION_SECRET}
+
+  providers:
+    oidc:
+      production:
+        metadataUrl: ${KEYCLOAK_BASE_URL}/realms/${KEYCLOAK_REALM}
+        clientId: ${KEYCLOAK_CLIENT_ID}
+        clientSecret: ${KEYCLOAK_CLIENT_SECRET}
+        prompt: login
+
+        signIn:
+          resolvers:
+            - resolver: preferredUsernameMatchingUserEntityName
+            - resolver: emailMatchingUserEntityProfileEmail
+            - resolver: oidcSubClaimMatchingKeycloakUserId
+
+signInPage: oidc
+
+permission:
+  enabled: true
+  rbac:
+    policies-csv-file: /opt/app-root/src/rbac-policies.csv
+    conditionalPoliciesFile: /opt/app-root/src/rbac-conditional-policies.yaml
+    policyFileReload: true
+
+backend:
+  reading:
+    allow:
+      - host: raw.githubusercontent.com
+
+catalog:
+  rules:
+    - allow: [Component, API, Group, User, Resource, System, Template, Location]
+  locations:
+    - type: url
+      target: https://raw.githubusercontent.com/piomin/backstage-templates/master/templates.yaml
+  providers:
+    keycloakOrg:
+      default:
+        baseUrl: ${KEYCLOAK_BASE_URL}
+        loginRealm: ${KEYCLOAK_LOGIN_REALM}
+        realm: ${KEYCLOAK_REALM}
+        clientId: ${KEYCLOAK_CLIENT_ID}
+        clientSecret: ${KEYCLOAK_CLIENT_SECRET}
+        schedule:
+          frequency:
+            minutes: 1
+          timeout:
+            minutes: 5
+          initialDelay:
+            seconds: 10
