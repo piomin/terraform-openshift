@@ -1,0 +1,30 @@
+apiVersion: tempo.grafana.com/v1alpha1
+kind: TempoStack
+metadata:
+  name: basic
+  namespace: tempo
+spec:
+  resources:
+    total:
+      limits:
+        cpu: 2000m
+        memory: 2Gi
+  tenants:
+    authentication:
+      - tenantId: 1610b0c3-c509-4592-a256-a1871353dbfa
+        tenantName: dev
+      - tenantId: 1610b0c3-c509-4592-a256-a1871353dbfb
+        tenantName: prod
+    mode: openshift
+  managementState: Managed
+  template:
+    gateway:
+      enabled: true
+    queryFrontend:
+      jaegerQuery:
+        enabled: true
+  storage:
+    secret:
+      name: azure-secret
+      type: azure
+  storageSize: 10Gi

@@ -1,0 +1,62 @@
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: cluster-collector
+  namespace: otel
+spec:
+  mode: deployment
+  serviceAccount: otel-collector
+  config:
+    extensions:
+      bearertokenauth:
+        filename: "/var/run/secrets/kubernetes.io/serviceaccount/token"
+    exporters:
+      debug: {}
+      otlp_grpc/traces:
+        endpoint: 'tempo-basic-gateway.tempo.svc.cluster.local:8090'
+        tls:
+          insecure: false
+          ca_file: '/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt'
+        auth:
+          authenticator: bearertokenauth
+        headers:
+          X-Scope-OrgID: "dev"
+      otlp_http/traces:
+        endpoint: 'https://tempo-basic-gateway.tempo.svc.cluster.local:8080/api/traces/v1/dev'
+        tls:
+          insecure: false
+          ca_file: '/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt'
+        auth:
+          authenticator: bearertokenauth
+        headers:
+          X-Scope-OrgID: "dev"
+    processors:
+      batch:
+        timeout: 5s
+        send_batch_max_size: 10000
+    receivers:
+      otlp:
+        protocols:
+          grpc: {}
+          http: {}
+    service:
+      extensions:
+        - bearertokenauth
+      pipelines:
+        traces:
+          exporters:
+            - debug
+            - otlp_grpc/traces
+            - otlp_http/traces
+          processors:
+            - batch
+          receivers:
+            - otlp
+      telemetry:
+        metrics:
+          readers:
+            - pull:
+                exporter:
+                  prometheus:
+                    host: 0.0.0.0
+                    port: 8889
