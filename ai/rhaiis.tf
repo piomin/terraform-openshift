@@ -34,13 +34,13 @@ spec:
             limits:
               cpu: '16'
               memory: 30Gi
-              nvidia.com/gpu: '1'
+              nvidia.com/gpu: '4'
             requests:
               cpu: '1'
               memory: 10Gi
-              nvidia.com/gpu: '1'
+              nvidia.com/gpu: '4'
           name: vllm
-          image: registry.redhat.io/rhaiis/vllm-cuda-rhel9:3.4.4
+          image: registry.redhat.io/rhaii/vllm-cuda-rhel9:3.4.5
           command:
             - python
             - '-m'
@@ -49,7 +49,7 @@ spec:
             - '--port=8000'
             - '--model=RedHatAI/Qwen3-Coder-Next-NVFP4'
             - '--served-model-name=qwen3_coder'
-            - '--tensor-parallel-size=2'
+            - '--tensor-parallel-size=4'
             - '--tool-call-parser=qwen3_coder'
             - '--enforce-eager'
           ports:
