@@ -1,0 +1,231 @@
+
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: my-pipeline
+spec:
+  params:
+    - name: repo-url
+      type: string
+    - name: repo-full-name
+      type: string
+    - name: issue
+      type: string
+    - name: comment
+      type: string
+    - name: base-branch
+      type: string
+      default: main
+
+  tasks:
+    # ==========================================
+    # TASK 1: Print GitHub Issue information
+    # ==========================================
+    - name: issue-info
+      params:
+        - name: repo-url
+          value: $(params.repo-url)
+        - name: issue
+          value: $(params.issue)
+        - name: comment
+          value: $(params.comment)
+
+      taskSpec:
+        metadata: {}
+        params:
+          - name: repo-url
+            type: string
+          - name: issue
+            type: string
+          - name: comment
+            type: string
+
+        steps:
+          - name: print
+            image: alpine:3.20
+            env:
+              - name: REPO
+                value: $(params.repo-url)
+              - name: ISSUE
+                value: $(params.issue)
+              - name: COMMENT
+                value: $(params.comment)
+            script: |
+              #!/bin/sh
+              echo "===== GitHub Issue Comment ====="
+              echo "Repository: $REPO"
+              echo "Issue: $ISSUE"
+              echo "Comment: $COMMENT"
+              echo "================================"
+
+    # ==========================================
+    # TASK 2: Claude Code + Create Pull Request
+    # ==========================================
+    - name: implement-and-create-pr
+      runAfter:
+        - issue-info
+
+      params:
+        - name: repo-url
+          value: $(params.repo-url)
+        - name: repo-full-name
+          value: $(params.repo-full-name)
+        - name: issue
+          value: $(params.issue)
+        - name: comment
+          value: $(params.comment)
+        - name: base-branch
+          value: $(params.base-branch)
+
+      taskSpec:
+        params:
+          - name: repo-url
+            type: string
+          - name: repo-full-name
+            type: string
+          - name: issue
+            type: string
+          - name: comment
+            type: string
+          - name: base-branch
+            type: string
+
+        volumes:
+          - name: work
+            emptyDir: {}
+
+        steps:
+          - name: implement
+            image: image-registry.example.com/ai/claude-code:1.0
+            workingDir: /workspace
+
+            volumeMounts:
+              - name: work
+                mountPath: /workspace
+
+            computeResources:
+              requests:
+                memory: 1Gi
+                cpu: "500m"
+              limits:
+                memory: 4Gi
+                cpu: "2"
+
+            env:
+              - name: ANTHROPIC_API_KEY
+                valueFrom:
+                  secretKeyRef:
+                    name: claude-github-secrets
+                    key: ANTHROPIC_API_KEY
+
+              - name: GH_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: claude-github-secrets
+                    key: GH_TOKEN
+
+              - name: REPO_URL
+                value: $(params.repo-url)
+              - name: REPO_FULL_NAME
+                value: $(params.repo-full-name)
+              - name: ISSUE_NUMBER
+                value: $(params.issue)
+              - name: COMMENT
+                value: $(params.comment)
+              - name: BASE_BRANCH
+                value: $(params.base-branch)
+              - name: HOME
+                value: /workspace/home
+
+            script: |
+              #!/usr/bin/env bash
+              set -euo pipefail
+
+              echo "=== Preparing environment ==="
+
+              mkdir -p "$HOME"
+
+              git config --global user.name "tekton-ai"
+              git config --global user.email \
+                "tekton-ai@users.noreply.github.com"
+
+              # GitHub authentication
+              git config --global credential.helper \
+                '!f() { echo username=x-access-token; echo password=$GH_TOKEN; }; f'
+
+              echo "=== Cloning repository ==="
+
+              git clone \
+                --branch "$BASE_BRANCH" \
+                -- "$REPO_URL" /workspace/repo
+
+              cd /workspace/repo
+
+              BRANCH="ai/issue-${ISSUE_NUMBER}-${HOSTNAME}"
+
+              git switch -c "$BRANCH"
+
+              echo "=== Preparing Claude prompt ==="
+
+              printf '%s\n' "$COMMENT" \
+                > /workspace/issue-request.txt
+
+              {
+                echo "Implement changes in this repository."
+                echo
+                echo "GitHub Issue: #${ISSUE_NUMBER}"
+                echo
+                echo "User request:"
+                cat /workspace/issue-request.txt
+                echo
+                echo "Instructions:"
+                echo "- Analyze the existing code."
+                echo "- Implement the requested changes."
+                echo "- Add or update tests where appropriate."
+                echo "- Do not push changes."
+                echo "- Do not create a pull request."
+                echo "- Do not modify CI security settings."
+                echo "- Do not access secrets."
+              } > /workspace/claude-prompt.txt
+
+              echo "=== Running Claude Sonnet ==="
+
+              claude -p \
+                --model sonnet \
+                --permission-mode acceptEdits \
+                --allowedTools "Read,Edit,Write,Glob,Grep" \
+                < /workspace/claude-prompt.txt
+
+              echo "=== Checking changes ==="
+
+              git status --short
+
+              if [ -z "$(git status --porcelain)" ]; then
+                echo "No changes generated by Claude"
+                exit 1
+              fi
+
+              echo "=== Committing changes ==="
+
+              git add -A
+
+              git commit -m \
+                "feat: implement issue #${ISSUE_NUMBER}"
+
+              echo "=== Pushing branch ==="
+
+              git push origin "$BRANCH"
+
+              echo "=== Creating Pull Request ==="
+
+              gh pr create \
+                --repo "$REPO_FULL_NAME" \
+                --base "$BASE_BRANCH" \
+                --head "$BRANCH" \
+                --title "AI: implement issue #${ISSUE_NUMBER}" \
+                --body "Closes #${ISSUE_NUMBER}
+
+              Changes generated by Claude Code.
+              Review required before merging."
+
+              echo "=== Pipeline completed ==="

@@ -1,0 +1,15 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerBinding
+metadata:
+  name: issue-comment
+  namespace: ci
+spec:
+  params:
+    - name: repo-url
+      value: $(body.repository.name)
+    - name: repo-full-name
+      value: $(body.repository.full_name)
+    - name: issue
+      value: $(body.issue.number)
+    - name: comment
+      value: $(body.comment.body)

@@ -1,0 +1,23 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: issue-comment
+  namespace: ci
+spec:
+  namespaceSelector: {}
+  resources: {}
+  serviceAccountName: pipeline
+  triggers:
+    - bindings:
+        - kind: TriggerBinding
+          ref: issue-comment
+      interceptors:
+        - params:
+            - name: filter
+              value: 'header.match(''X-GitHub-Event'', ''issue_comment'') && body.action == ''created'' && body.comment.body.startsWith(''@tekton'')'
+          ref:
+            kind: ClusterInterceptor
+            name: cel
+      name: issue-comment
+      template:
+        ref: issue-comment

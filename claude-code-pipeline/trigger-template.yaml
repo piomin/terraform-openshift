@@ -1,0 +1,28 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: issue-comment
+  namespace: ci
+spec:
+  params:
+    - name: repo-url
+    - name: repo-full-name
+    - name: issue
+    - name: comment
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1
+      kind: PipelineRun
+      metadata:
+        generateName: issue-comment-
+      spec:
+        params:
+          - name: repo-url
+            value: $(tt.params.repo-url)
+          - name: repo-full-name
+            value: $(tt.params.repo-full-name)
+          - name: issue
+            value: $(tt.params.issue)
+          - name: comment
+            value: $(tt.params.comment)
+        pipelineRef:
+          name: my-pipeline
