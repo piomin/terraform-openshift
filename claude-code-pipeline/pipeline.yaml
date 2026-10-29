@@ -15,7 +15,7 @@ spec:
       type: string
     - name: base-branch
       type: string
-      default: main
+      default: master
 
   tasks:
     # ==========================================
@@ -96,7 +96,7 @@ spec:
 
         steps:
           - name: implement
-            image: image-registry.example.com/ai/claude-code:1.0
+            image: quay.io/pminkows/claude-code:latest
             workingDir: /workspace
 
             volumeMounts:
@@ -167,7 +167,19 @@ spec:
 
               echo "=== Preparing Claude prompt ==="
 
-              printf '%s\n' "$COMMENT" \
+              # Remove @tekton prefix
+              CLEAN_COMMENT="${COMMENT#@tekton}"
+
+              # Remove leading whitespace after prefix
+              CLEAN_COMMENT="${CLEAN_COMMENT#"${CLEAN_COMMENT%%[![:space:]]*}"}"
+
+              # Validate comment
+              if [ -z "$CLEAN_COMMENT" ]; then
+                echo "ERROR: No instructions provided after @tekton"
+                exit 1
+              fi
+
+              printf '%s\n' "$CLEAN_COMMENT" \
                 > /workspace/issue-request.txt
 
               {

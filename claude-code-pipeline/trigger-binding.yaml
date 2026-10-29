@@ -6,7 +6,7 @@ metadata:
 spec:
   params:
     - name: repo-url
-      value: $(body.repository.name)
+      value: $(body.repository.clone_url)
     - name: repo-full-name
       value: $(body.repository.full_name)
     - name: issue
