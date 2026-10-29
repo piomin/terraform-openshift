@@ -34,13 +34,13 @@ spec:
             limits:
               cpu: '16'
               memory: 30Gi
-              nvidia.com/gpu: '1'
+              nvidia.com/gpu: '4'
             requests:
               cpu: '1'
               memory: 10Gi
-              nvidia.com/gpu: '1'
+              nvidia.com/gpu: '4'
           name: vllm
-          image: registry.redhat.io/rhaiis/vllm-cuda-rhel9:3.4.4
+          image: registry.redhat.io/rhaii/vllm-cuda-rhel9:3.4.4
           command:
             - python
             - '-m'
