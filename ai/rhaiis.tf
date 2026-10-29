@@ -49,7 +49,7 @@ spec:
             - '--port=8000'
             - '--model=RedHatAI/Qwen3-Coder-Next-NVFP4'
             - '--served-model-name=qwen3_coder'
-            - '--tensor-parallel-size=2'
+            - '--tensor-parallel-size=4'
             - '--tool-call-parser=qwen3_coder'
             - '--enforce-eager'
           ports:
