@@ -1,0 +1,28 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: new-issue
+  namespace: agents
+spec:
+  serviceAccountName: issue-agent-listener
+  triggers:
+    - name: new-issue
+      interceptors:
+        - ref:
+            name: github
+          params:
+            - name: secretRef
+              value:
+                secretName: github-webhook-secret
+                secretKey: secret
+            - name: eventTypes
+              value: ["issues"]
+        - ref:
+            name: cel
+          params:
+            - name: filter
+              value: "body.action == 'opened' && body.issue.author_association in ['OWNER', 'MEMBER']"
+      bindings:
+        - ref: new-issue
+      template:
+        ref: new-issue

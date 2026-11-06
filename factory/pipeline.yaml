@@ -1,0 +1,156 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: issue-agent
+  namespace: agents
+spec:
+  params:
+    - name: repo-url
+      type: string
+    - name: repo-full-name
+      type: string
+    - name: issue
+      type: string
+    - name: issue-title
+      type: string
+    - name: issue-body
+      type: string
+      default: ""
+    - name: base-branch
+      type: string
+      default: master
+  tasks:
+    - name: implement-and-create-pr
+      params:
+        - name: repo-url
+          value: $(params.repo-url)
+        - name: repo-full-name
+          value: $(params.repo-full-name)
+        - name: issue
+          value: $(params.issue)
+        - name: issue-title
+          value: $(params.issue-title)
+        - name: issue-body
+          value: $(params.issue-body)
+        - name: base-branch
+          value: $(params.base-branch)
+      taskSpec:
+        params:
+          - name: repo-url
+            type: string
+          - name: repo-full-name
+            type: string
+          - name: issue
+            type: string
+          - name: issue-title
+            type: string
+          - name: issue-body
+            type: string
+          - name: base-branch
+            type: string
+        volumes:
+          - name: work
+            emptyDir: {}
+        steps:
+          - name: implement
+            image: quay.io/pminkows/opencode:latest
+            workingDir: /workspace
+            volumeMounts:
+              - name: work
+                mountPath: /workspace
+            computeResources:
+              requests:
+                memory: 1Gi
+                cpu: 500m
+              limits:
+                memory: 2Gi
+                cpu: "2"
+            env:
+              - name: GH_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    name: claude-github-secrets
+                    key: GH_TOKEN
+              - name: REPO_URL
+                value: $(params.repo-url)
+              - name: REPO_FULL_NAME
+                value: $(params.repo-full-name)
+              - name: ISSUE_NUMBER
+                value: $(params.issue)
+              - name: ISSUE_TITLE
+                value: $(params.issue-title)
+              - name: ISSUE_BODY
+                value: $(params.issue-body)
+              - name: BASE_BRANCH
+                value: $(params.base-branch)
+              - name: HOME
+                value: /workspace/home
+              - name: GIT_AUTHOR_NAME
+                value: opencode[bot]
+              - name: GIT_AUTHOR_EMAIL
+                value: opencode-bot@no-reply.com
+              - name: GIT_COMMITTER_NAME
+                value: opencode[bot]
+              - name: GIT_COMMITTER_EMAIL
+                value: opencode-bot@no-reply.com
+              - name: OPENCODE_CONFIG_CONTENT
+                value: |
+                  {
+                    "$schema": "https://opencode.ai/config.json",
+                    "model": "qwen3-coder/qwen3_coder",
+                    "permission": { "edit": "allow", "bash": "allow", "webfetch": "deny" },
+                    "provider": {
+                      "qwen3-coder": {
+                        "npm": "@ai-sdk/openai-compatible",
+                        "name": "Qwen3 Coder",
+                        "options": { "baseURL": "http://qwen3-coder.ai.svc.cluster.local:8000/v1", "apiKey": "none" },
+                        "models": { "qwen3_coder": { "name": "Qwen3 Coder" } }
+                      }
+                    }
+                  }
+            script: |
+              #!/usr/bin/env bash
+              set -euo pipefail
+
+              mkdir -p "$HOME"
+              gh auth setup-git
+
+              printf '# Issue #%s: %s\n\n%s\n' "$ISSUE_NUMBER" "$ISSUE_TITLE" "$ISSUE_BODY" > /workspace/issue.txt
+              cat /workspace/issue.txt
+
+              echo "=== Cloning repository ==="
+              git clone --branch "$BASE_BRANCH" -- "$REPO_URL" /workspace/repo
+              cd /workspace/repo
+              BRANCH="opencode/issue-${ISSUE_NUMBER}-${HOSTNAME}"
+              git switch -c "$BRANCH"
+
+              {
+                echo "Implement the GitHub issue below in this repository."
+                echo
+                cat /workspace/issue.txt
+                echo
+                echo "Rules:"
+                echo "- Analyze the existing code, implement the requested changes, add or update tests where appropriate."
+                echo "- Do not run git commit or git push, do not create a pull request, do not access secrets."
+              } > /workspace/prompt.txt
+
+              echo "=== Running opencode ==="
+              opencode run "$(cat /workspace/prompt.txt)"
+
+              if [ -z "$(git status --porcelain)" ]; then
+                echo "No changes generated"
+                exit 1
+              fi
+
+              git add -A
+              git commit -m "feat: implement issue #${ISSUE_NUMBER}"
+              git push origin "$BRANCH"
+
+              gh pr create \
+                --repo "$REPO_FULL_NAME" \
+                --base "$BASE_BRANCH" \
+                --head "$BRANCH" \
+                --title "AI: implement issue #${ISSUE_NUMBER}" \
+                --body "Closes #${ISSUE_NUMBER}
+
+              Changes generated by opencode. Review required before merging."

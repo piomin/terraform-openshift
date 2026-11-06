@@ -1,0 +1,19 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerBinding
+metadata:
+  name: new-issue
+  namespace: agents
+spec:
+  params:
+    - name: repo-url
+      value: $(body.repository.clone_url)
+    - name: repo-full-name
+      value: $(body.repository.full_name)
+    - name: issue
+      value: $(body.issue.number)
+    - name: issue-title
+      value: $(body.issue.title)
+    - name: issue-body
+      value: $(body.issue.body)
+    - name: base-branch
+      value: $(body.repository.default_branch)

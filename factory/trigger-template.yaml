@@ -1,0 +1,34 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: new-issue
+  namespace: agents
+spec:
+  params:
+    - name: repo-url
+    - name: repo-full-name
+    - name: issue
+    - name: issue-title
+    - name: issue-body
+    - name: base-branch
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1
+      kind: PipelineRun
+      metadata:
+        generateName: issue-agent-
+      spec:
+        pipelineRef:
+          name: issue-agent
+        params:
+          - name: repo-url
+            value: $(tt.params.repo-url)
+          - name: repo-full-name
+            value: $(tt.params.repo-full-name)
+          - name: issue
+            value: $(tt.params.issue)
+          - name: issue-title
+            value: $(tt.params.issue-title)
+          - name: issue-body
+            value: $(tt.params.issue-body)
+          - name: base-branch
+            value: $(tt.params.base-branch)
