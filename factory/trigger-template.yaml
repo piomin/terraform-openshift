@@ -19,6 +19,8 @@ spec:
       spec:
         pipelineRef:
           name: issue-agent
+        timeouts:
+          pipeline: 3h0m0s
         params:
           - name: repo-url
             value: $(tt.params.repo-url)
