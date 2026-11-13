@@ -16,4 +16,20 @@ RUN curl -fsSL \
     && cp /tmp/gh_${GH_VERSION}_linux_amd64/bin/gh /usr/local/bin/gh \
     && rm -rf /tmp/gh*
 
+# OpenJDK 25 (Eclipse Temurin)
+RUN mkdir -p /opt/java \
+    && curl -fsSL \
+    "https://api.adoptium.net/v3/binary/latest/25/ga/linux/x64/jdk/hotspot/normal/eclipse" \
+    | tar -xz -C /opt/java --strip-components=1
+ENV JAVA_HOME=/opt/java
+
+# Maven z Maven Central
+ARG MAVEN_VERSION=3.9.11
+RUN mkdir -p /opt/maven \
+    && curl -fsSL \
+    "https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/${MAVEN_VERSION}/apache-maven-${MAVEN_VERSION}-bin.tar.gz" \
+    | tar -xz -C /opt/maven --strip-components=1
+ENV MAVEN_HOME=/opt/maven
+ENV PATH="${JAVA_HOME}/bin:${MAVEN_HOME}/bin:${PATH}"
+
 USER 1001
